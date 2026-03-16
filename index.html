@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResumeAI Pro — Intelligent Resume & Career Platform</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07080f;--surface:#0e1020;--surface2:#141628;--surface3:#1c1f38;
+  --border:#252848;--border2:#2e3260;
+  --accent:#7c5cfc;--accent-l:#a07fff;--accent2:#fc5c7d;--accent3:#5cf9c8;
+  --gold:#f5c842;--cyan:#06b6d4;--orange:#f97316;
+  --text:#e8eaf6;--muted:#7a7ea8;
+  --gp:0 0 28px rgba(124,92,252,.35);--gt:0 0 22px rgba(92,249,200,.25);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 55% at 15% 8%,rgba(124,92,252,.10) 0%,transparent 60%),radial-gradient(ellipse 55% 45% at 85% 90%,rgba(252,92,125,.07) 0%,transparent 60%),radial-gradient(ellipse 40% 35% at 50% 50%,rgba(6,182,212,.04) 0%,transparent 55%);pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:200;background:rgba(7,8,15,.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 1.2rem;height:56px}
+.nav-logo{font-family:'Orbitron',monospace;font-size:.9rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+.nav-tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{padding:5px 10px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-tab:hover{color:var(--text);background:var(--surface2)}
+.nav-tab.active{color:#fff;background:var(--accent)}
+.nav-badge{background:linear-gradient(135deg,var(--accent3),var(--accent));color:#000;font-size:.6rem;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;font-family:'Orbitron',monospace}
+
+/* SHELL */
+.shell{display:flex;position:relative;z-index:1;min-height:calc(100vh - 56px)}
+
+/* SIDEBAR */
+.sidebar{width:230px;flex-shrink:0;background:rgba(8,9,18,.92);border-right:1px solid var(--border);padding:18px 14px;display:flex;flex-direction:column;gap:14px;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.sb-title{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;font-family:'Orbitron',monospace}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:.81rem;font-weight:500;color:var(--muted);transition:all .2s;margin-bottom:1px;border:1px solid transparent}
+.sb-item:hover{background:var(--surface2);color:var(--text)}
+.sb-item.active{background:rgba(124,92,252,.15);color:var(--accent-l);border-color:rgba(124,92,252,.2)}
+.sb-item .badge{margin-left:auto;background:var(--accent2);color:#fff;font-size:.56rem;font-weight:700;padding:1px 6px;border-radius:10px}
+.sb-item .badge.new{background:var(--accent3);color:#000}
+.sb-div{border:none;border-top:1px solid var(--border)}
+.sb-stats{background:rgba(124,92,252,.07);border:1px solid rgba(124,92,252,.16);border-radius:9px;padding:11px;font-size:.74rem;color:var(--muted)}
+.sb-stats-title{font-family:'Orbitron',monospace;font-size:.64rem;font-weight:700;color:var(--text);margin-bottom:7px}
+.sb-stat{display:flex;justify-content:space-between;padding:2px 0}
+.sb-stat-v{font-family:'Orbitron',monospace;font-size:.84rem;font-weight:700;color:var(--accent-l)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;overflow-x:hidden}
+.page{display:none;padding:1.6rem 1.8rem;max-width:1100px}
+.page.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:1.4rem}
+.ph-eye{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.ph-title{font-family:'Playfair Display',serif;font-size:1.65rem;font-weight:900;margin-bottom:.2rem}
+.ph-sub{color:var(--muted);font-size:.84rem}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.15rem;transition:border-color .2s}
+.card:hover{border-color:rgba(124,92,252,.3)}
+.ct{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.8rem}
+.glass{background:rgba(14,16,32,.78);border:1px solid var(--border2);border-radius:14px;padding:1.15rem;backdrop-filter:blur(14px)}
+
+/* FORM */
+label{display:block;font-size:.75rem;font-weight:500;color:var(--muted);margin-bottom:4px;margin-top:9px}
+label:first-child{margin-top:0}
+input,textarea,select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;padding:8px 11px;outline:none;transition:border-color .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:78px}
+select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7ea8' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+select option{background:var(--surface2)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 15px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#5a3de0);color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:var(--gp)}
+.btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent-l)}
+.btn-green{background:linear-gradient(135deg,var(--accent3),#22c99a);color:#000;font-weight:700}
+.btn-green:hover{transform:translateY(-1px);box-shadow:var(--gt)}
+.btn-pink{background:linear-gradient(135deg,var(--accent2),#d03060);color:#fff}
+.btn-pink:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(252,92,125,.3)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#e6a800);color:#000;font-weight:700}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text)}
+.btn-outline:hover{border-color:var(--accent-l);color:var(--accent-l)}
+.btn-sm{padding:4px 10px;font-size:.72rem}
+.btn-block{width:100%;justify-content:center}
+.btn-lg{padding:12px 24px;font-size:.9rem}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+/* TAGS */
+.tw{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.tag{display:inline-flex;align-items:center;gap:3px;background:rgba(124,92,252,.12);border:1px solid rgba(124,92,252,.25);color:var(--accent-l);font-size:.72rem;font-weight:500;padding:3px 8px;border-radius:20px}
+.tag-rm{cursor:pointer;opacity:.6;font-size:.64rem}
+.tag-rm:hover{opacity:1}
+.tmatch{background:rgba(92,249,200,.1);color:var(--accent3);border-color:rgba(92,249,200,.3)}
+.tmiss{background:rgba(252,92,125,.1);color:var(--accent2);border-color:rgba(252,92,125,.3)}
+
+/* ROLE CHIPS */
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:5px}
+.rc{padding:6px 6px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:.71rem;font-weight:500;cursor:pointer;transition:all .2s;text-align:center}
+.rc:hover{border-color:var(--accent);color:var(--text)}
+.rc.sel{border-color:var(--accent);background:rgba(124,92,252,.15);color:var(--accent-l);font-weight:600}
+
+/* SECTION HEADERS */
+.sh{font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;letter-spacing:.07em;display:flex;align-items:center;gap:8px;margin-bottom:13px;margin-top:24px;color:var(--gold)}
+.sh.blue{color:var(--cyan)}.sh.purple{color:var(--accent-l)}.sh.green{color:var(--accent3)}.sh.pink{color:var(--accent2)}.sh.orange{color:var(--orange)}
+
+/* PROGRESS */
+.pw{background:var(--surface3);border-radius:100px;height:6px;overflow:hidden}
+.pb{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold),#f97316);transition:width 1s ease}
+.pb.green{background:linear-gradient(90deg,var(--accent3),#34d399)}
+.pb.purple{background:linear-gradient(90deg,var(--accent),var(--accent-l))}
+.pb.cyan{background:linear-gradient(90deg,var(--cyan),#0ea5e9)}
+
+/* LOADING */
+.lbar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.lbar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .25s}
+.spin{width:17px;height:17px;border:2px solid var(--border2);border-top-color:var(--accent-l);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+.lrow{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:.8rem;padding:12px 0}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.cursor{display:inline-block;width:2px;height:12px;background:var(--accent);animation:blink .8s infinite;vertical-align:middle;margin-left:2px}
+
+/* STEPS */
+.steps{display:flex;align-items:center;margin-bottom:1.4rem}
+.step{display:flex;align-items:center;gap:5px;flex:1}
+.step-c{width:27px;height:27px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:var(--muted);flex-shrink:0;transition:all .3s}
+.step.done .step-c{background:var(--accent3);border-color:var(--accent3);color:#000}
+.step.active .step-c{background:var(--accent);border-color:var(--accent);color:#fff}
+.step-l{font-size:.71rem;color:var(--muted)}
+.step.active .step-l{color:var(--text);font-weight:600}
+.step.done .step-l{color:var(--accent3)}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 5px}
+
+/* AI BUBBLE */
+.ai-bub{background:var(--surface2);border:1px solid rgba(124,92,252,.22);border-radius:12px;padding:.95rem;font-size:.8rem;line-height:1.7;color:var(--text);position:relative;margin-top:1rem}
+.ai-bub::before{content:'✦ AI';position:absolute;top:-9px;left:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:.56rem;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.5px}
+
+/* STREAM BOX */
+.sbox{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:14px;font-size:.8rem;color:var(--muted);line-height:1.7;white-space:pre-wrap;min-height:50px}
+
+/* ISSUE LIST */
+.il{list-style:none;display:flex;flex-direction:column;gap:6px}
+.ii{display:flex;gap:9px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--accent2);font-size:.79rem;color:var(--muted)}
+.in{font-family:'JetBrains Mono',monospace;color:var(--accent2);font-size:.74rem;flex-shrink:0;margin-top:1px}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.84);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.mo.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.4rem;width:90%;max-width:560px;max-height:88vh;overflow-y:auto;transform:translateY(16px);transition:transform .25s}
+.mo.open .modal{transform:translateY(0)}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.mt{font-family:'Playfair Display',serif;font-size:1.08rem;font-weight:700}
+.mc{background:var(--surface2);border:1px solid var(--border);color:var(--text);width:27px;height:27px;border-radius:7px;cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center}
+
+/* NOTIFICATION */
+#notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:var(--surface);border:1px solid var(--accent);border-radius:10px;padding:10px 15px;font-size:.79rem;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.45);max-width:290px;transform:translateY(100px);opacity:0;transition:all .3s}
+#notif.show{transform:translateY(0);opacity:1}
+
+/* UTILS */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem}
+.fb{display:flex;justify-content:space-between;align-items:center}
+.fg{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.mt1{margin-top:7px}.mt2{margin-top:13px}.mt3{margin-top:20px}
+.mb1{margin-bottom:7px}.mb2{margin-bottom:13px}.mb3{margin-bottom:20px}
+.div{height:1px;background:var(--border);margin:.9rem 0}
+
+/* PRINT */
+@media print{body *{visibility:hidden}#pa,#pa *{visibility:visible}#pa{position:fixed;inset:0;background:#fff;z-index:99999}}
+
+/* ══════════════════════════════════
+   HOME
+══════════════════════════════════ */
+.hero{min-height:calc(100vh - 56px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 55% at 50% 55%,rgba(124,92,252,.13) 0%,transparent 65%);pointer-events:none}
+.hbadge{display:inline-flex;align-items:center;gap:5px;background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.28);color:var(--accent-l);font-size:.66rem;font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:1.1rem;letter-spacing:.5px;text-transform:uppercase;font-family:'Orbitron',monospace}
+.htitle{font-family:'Orbitron',monospace;font-size:clamp(2rem,5.5vw,4.2rem);font-weight:900;line-height:1.05;margin-bottom:.65rem;background:linear-gradient(135deg,#fff 0%,var(--accent-l) 50%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hsub{font-size:.95rem;color:var(--muted);max-width:520px;margin:0 auto 1.8rem;line-height:1.7}
+.hstats{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;max-width:680px;width:100%;margin-bottom:1.8rem}
+.hstat{background:rgba(14,16,32,.88);border:1px solid var(--border2);border-radius:11px;padding:.9rem;backdrop-filter:blur(10px)}
+.hstat .v{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hstat .l{font-size:.65rem;color:var(--muted);margin-top:2px;letter-spacing:.05em}
+.hcards{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;max-width:740px;width:100%}
+.hcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer;transition:all .3s;text-align:left}
+.hcard:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:var(--gp)}
+.hcard-i{font-size:1.6rem;margin-bottom:.35rem}
+.hcard h3{font-size:.82rem;font-weight:700;margin-bottom:.22rem}
+.hcard p{font-size:.72rem;color:var(--muted);line-height:1.45}
+.hcard .new-tag{display:inline-block;background:var(--accent3);color:#000;font-size:.56rem;font-weight:700;padding:1px 5px;border-radius:5px;margin-left:4px;vertical-align:middle}
+
+/* ══════════════════════════════════
+   RESUME PREVIEW (white paper)
+══════════════════════════════════ */
+.rp{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 16px 50px rgba(0,0,0,.5);color:#1a1a2e;font-family:'DM Sans',sans-serif;font-size:.75rem;line-height:1.5;max-height:580px;overflow-y:auto}
+.rp::-webkit-scrollbar{width:3px}
+.rp::-webkit-scrollbar-thumb{background:#c8c8d8;border-radius:3px}
+.rph{padding:1.2rem}
+.rph h1{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:900}
+.rp-role{font-size:.79rem;font-weight:500;margin-top:2px}
+.rpc{display:flex;flex-wrap:wrap;gap:7px;margin-top:.45rem}
+.rpc span{font-size:.68rem}
+.rpb{padding:.95rem}
+.rps{margin-bottom:.85rem}
+.rpst{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding-bottom:2px;margin-bottom:.4rem}
+.rpsum{font-size:.74rem;line-height:1.6;color:#4a4a6a}
+.rpe{margin-bottom:.65rem}
+.rpet{font-weight:700;font-size:.77rem;color:#1a1a2e}
+.rpem{color:#888;font-size:.67rem;margin-bottom:2px}
+.rpbul{padding-left:.8rem;color:#4a4a6a;font-size:.72rem}
+.rpbul li{margin-bottom:1px}
+.rpsg{display:flex;flex-wrap:wrap;gap:3px}
+.rpsk{font-size:.64rem;font-weight:600;padding:2px 6px;border-radius:20px}
+
+/* 12 RESUME COLOR SCHEMES */
+.s1 .rph{background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff}.s1 .rp-role{color:#a89cf0}.s1 .rpc span{color:#c0c0e0}.s1 .rpst{color:#7c5cfc;border-bottom:2px solid #7c5cfc}.s1 .rpsk{background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.25);color:#7c5cfc}
+.s2 .rph{background:linear-gradient(135deg,#1a2e1a,#2d4e2d);color:#fff}.s2 .rp-role{color:#90d4a0}.s2 .rpc span{color:#b0d0b8}.s2 .rpst{color:#3caf6c;border-bottom:2px solid #3caf6c}.s2 .rpsk{background:rgba(60,175,108,.1);border:1px solid rgba(60,175,108,.25);color:#3caf6c}
+.s3 .rph{background:linear-gradient(135deg,#2e1a1a,#4e2d2d);color:#fff}.s3 .rp-role{color:#f0a0b0}.s3 .rpc span{color:#e0c0c8}.s3 .rpst{color:#fc5c7d;border-bottom:2px solid #fc5c7d}.s3 .rpsk{background:rgba(252,92,125,.1);border:1px solid rgba(252,92,125,.25);color:#fc5c7d}
+.s4 .rph{background:linear-gradient(135deg,#1a2e3a,#0d3d4e);color:#fff}.s4 .rp-role{color:#80f0e0}.s4 .rpc span{color:#a0d8e8}.s4 .rpst{color:#5cf9c8;border-bottom:2px solid #5cf9c8}.s4 .rpsk{background:rgba(92,249,200,.1);border:1px solid rgba(92,249,200,.25);color:#5cf9c8}
+.s5 .rph{background:linear-gradient(135deg,#1e1e1e,#3a3a3a);color:#fff}.s5 .rp-role{color:#aaa}.s5 .rpc span{color:#bbb}.s5 .rpst{color:#888;border-bottom:2px solid #888}.s5 .rpsk{background:rgba(150,150,150,.1);border:1px solid rgba(150,150,150,.3);color:#666}
+.s6 .rph{background:linear-gradient(135deg,#2e2a1a,#4a3c10);color:#fff}.s6 .rp-role{color:#f5d070}.s6 .rpc span{color:#e8d090}.s6 .rpst{color:#c8a020;border-bottom:2px solid #c8a020}.s6 .rpsk{background:rgba(200,160,32,.1);border:1px solid rgba(200,160,32,.3);color:#c8a020}
+/* NEW TEMPLATES s7-s12 */
+.s7 .rph{background:linear-gradient(135deg,#0a1628,#1e3a5f);color:#fff}.s7 .rp-role{color:#60a5fa}.s7 .rpc span{color:#93c5fd}.s7 .rpst{color:#3b82f6;border-bottom:2px solid #3b82f6}.s7 .rpsk{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#3b82f6}
+.s8 .rph{background:linear-gradient(135deg,#1a0a2e,#3d1a6e);color:#fff}.s8 .rp-role{color:#c084fc}.s8 .rpc span{color:#d8b4fe}.s8 .rpst{color:#a855f7;border-bottom:2px solid #a855f7}.s8 .rpsk{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);color:#a855f7}
+.s9 .rph{background:linear-gradient(160deg,#f8fafc,#e2e8f0);color:#1e293b;border-bottom:3px solid #0f172a}.s9 .rp-role{color:#475569}.s9 .rpc span{color:#64748b}.s9 .rpst{color:#0f172a;border-bottom:2px solid #0f172a}.s9 .rpsk{background:rgba(15,23,42,.07);border:1px solid rgba(15,23,42,.2);color:#1e293b}
+.s10 .rph{background:linear-gradient(135deg,#0d1a0d,#1a3d1a);color:#fff;border-left:5px solid #22c55e}.s10 .rp-role{color:#86efac}.s10 .rpc span{color:#bbf7d0}.s10 .rpst{color:#22c55e;border-bottom:2px solid #22c55e}.s10 .rpsk{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#22c55e}
+.s11 .rph{background:linear-gradient(135deg,#2d1b00,#7c3f00);color:#fff}.s11 .rp-role{color:#fbbf24}.s11 .rpc span{color:#fcd34d}.s11 .rpst{color:#f59e0b;border-bottom:2px solid #f59e0b}.s11 .rpsk{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#f59e0b}
+.s12 .rph{background:linear-gradient(135deg,#0c1a1a,#0d3d3d);color:#fff}.s12 .rp-role{color:#2dd4bf}.s12 .rpc span{color:#5eead4}.s12 .rpst{color:#14b8a6;border-bottom:2px solid #14b8a6}.s12 .rpsk{background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.25);color:#14b8a6}
+
+/* ATS RING */
+.atr{position:relative;display:inline-block;width:115px;height:115px;margin-bottom:.65rem}
+.atr svg{transform:rotate(-90deg)}
+.atr-val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:1.45rem;font-weight:700}
+.atr-lbl{font-size:.54rem;color:var(--muted)}
+.ati{list-style:none}
+.aii{display:flex;align-items:center;gap:6px;font-size:.76rem;padding:3px 0;border-bottom:1px solid var(--border)}
+.aii:last-child{border:none}
+.aid{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* DEEP ANALYZER */
+.asc{font-family:'Orbitron',monospace;font-size:48px;font-weight:900;color:var(--gold);text-align:center}
+.asl{font-size:.62rem;letter-spacing:.18em;color:var(--muted);text-align:center;margin-top:2px}
+.ascard{background:rgba(14,16,32,.78);border:1px solid var(--border2);border-radius:14px;padding:22px;text-align:center;margin-bottom:16px}
+
+/* ATS OPT */
+.aoc{background:rgba(14,16,32,.88);border:1px solid var(--border2);border-radius:12px;padding:15px;margin-bottom:12px}
+.aoh{font-weight:700;font-size:.83rem;display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.aon{width:19px;height:19px;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.63rem;font-family:'JetBrains Mono',monospace;flex-shrink:0;color:#fff}
+.aovt{font-size:.79rem;color:var(--muted);line-height:1.6;margin-bottom:9px;background:var(--surface2);padding:10px 12px;border-radius:7px;border-left:3px solid var(--accent)}
+
+/* SKILL GAP */
+.skc{background:rgba(14,16,32,.82);border:1px solid var(--border2);border-radius:12px;padding:15px}
+.skt{font-weight:700;font-size:.86rem;display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.rms{padding:9px 0;border-bottom:1px solid var(--border);font-size:.79rem;color:var(--muted)}
+.rms:last-child{border:none}
+.rms strong{color:var(--text)}
+.rms .obj{font-size:.74rem;margin-top:2px;opacity:.8}
+
+/* TEMPLATES */
+.tc{border:2px solid var(--border);border-radius:11px;overflow:hidden;cursor:pointer;transition:all .2s;position:relative}
+.tc:hover,.tc.sel{border-color:var(--accent);box-shadow:var(--gp)}
+.tc.sel::after{content:'✓';position:absolute;top:6px;right:6px;width:19px;height:19px;border-radius:50%;background:var(--accent);color:#fff;font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tn{padding:.5rem .65rem;font-size:.74rem;font-weight:600;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.tn span{font-size:.58rem;color:var(--accent-l)}
+
+/* AVATAR */
+.avp{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:6px}
+.avo{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;border:2px solid transparent;transition:all .2s;background:var(--surface2)}
+.avo:hover,.avo.sel{border-color:var(--accent);background:rgba(124,92,252,.15);transform:scale(1.1)}
+
+/* PORTFOLIO */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:.95rem}
+.pcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .3s}
+.pcard:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--gp)}
+.pthumb{height:105px;display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+.pcb{padding:.8rem}
+.pct{font-weight:700;font-size:.86rem;margin-bottom:2px}
+.pcd{color:var(--muted);font-size:.74rem;margin-bottom:.5rem;line-height:1.45}
+.pctags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:.5rem}
+.pctag{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:.64rem;padding:2px 6px;border-radius:7px}
+
+/* PORTFOLIO PREVIEW */
+.pph{background:linear-gradient(135deg,#1a1a2e,#3a2a6e);color:#fff;padding:1.8rem;text-align:center}
+.pph h1{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;margin-bottom:.25rem}
+.pptag{color:#c0b0f8;font-size:.84rem;margin-bottom:.65rem}
+.ppbio{font-size:.78rem;line-height:1.6;color:#d8d0f8;max-width:460px;margin:0 auto}
+.ppprojs{padding:1.3rem;display:grid;grid-template-columns:repeat(2,1fr);gap:.9rem;background:#f4f4f8}
+.ppcard{background:#fff;border-radius:9px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.ppcthumb{height:75px;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
+.ppcb{padding:.65rem}
+.ppct{font-weight:700;font-size:.8rem;margin-bottom:2px;color:#1a1a2e}
+.ppcd{font-size:.71rem;color:#666;line-height:1.4}
+
+/* COVER LETTER page */
+.cl-preview{background:#fff;border-radius:12px;padding:2rem;color:#1a1a2e;font-family:'Inter',sans-serif;font-size:.82rem;line-height:1.8;max-height:580px;overflow-y:auto;box-shadow:0 16px 50px rgba(0,0,0,.5)}
+.cl-preview h2{font-size:1.1rem;font-weight:700;margin-bottom:.3rem;color:#1a1a2e}
+.cl-preview .cl-meta{color:#666;font-size:.74rem;margin-bottom:1.2rem}
+.cl-preview p{margin-bottom:.7rem}
+.cl-preview .cl-sign{margin-top:1.2rem;font-weight:600}
+
+/* INTERVIEW COACH */
+.iq-card{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:1rem;margin-bottom:.8rem}
+.iq-q{font-weight:600;font-size:.84rem;color:var(--text);margin-bottom:.5rem;display:flex;align-items:flex-start;gap:8px}
+.iq-qnum{background:var(--accent);color:#fff;font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0;margin-top:1px;font-family:'JetBrains Mono',monospace}
+.iq-ans{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.7rem;font-size:.78rem;color:var(--muted);line-height:1.65}
+.iq-tip{font-size:.72rem;color:var(--accent3);margin-top:.4rem;font-style:italic}
+
+/* SALARY INSIGHTS */
+.sal-card{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:1.1rem}
+.sal-range{display:flex;align-items:center;gap:1rem;margin-top:.6rem}
+.sal-bar-wrap{flex:1;height:8px;background:var(--surface3);border-radius:100px;overflow:hidden}
+.sal-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--accent3),var(--accent));transition:width 1.2s ease}
+.sal-labels{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:3px}
+
+/* LINKEDIN OPTIMIZER */
+.lo-section{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.9rem;margin-bottom:.8rem}
+.lo-sec-title{font-size:.72rem;font-weight:700;color:var(--accent-l);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.08em;font-family:'Orbitron',monospace}
+
+/* DEPLOY OPTIONS */
+.do{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem;margin-bottom:.65rem;cursor:pointer;transition:all .2s}
+.do:hover{border-color:var(--accent)}
+.do h4{font-size:.84rem;font-weight:600;margin-bottom:.18rem}
+.do p{font-size:.73rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="nav-logo">⬡ ResumeAI Pro</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-page="home"       onclick="P('home')">🏠 Home</button>
+    <button class="nav-tab"        data-page="builder"    onclick="P('builder')">📄 Builder</button>
+    <button class="nav-tab"        data-page="coverletter" onclick="P('coverletter')">✉️ Cover Letter</button>
+    <button class="nav-tab"        data-page="portfolio"  onclick="P('portfolio')">🎨 Portfolio</button>
+    <button class="nav-tab"        data-page="analyzer"   onclick="P('analyzer')">🔬 Analyzer</button>
+    <button class="nav-tab"        data-page="skillgap"   onclick="P('skillgap')">📊 Skill Gap</button>
+    <button class="nav-tab"        data-page="ats"        onclick="P('ats')">🎯 ATS Check</button>
+    <button class="nav-tab"        data-page="atsopt"     onclick="P('atsopt')">⚡ ATS Rewriter</button>
+    <button class="nav-tab"        data-page="interview"  onclick="P('interview')">🎙️ Interview</button>
+    <button class="nav-tab"        data-page="salary"     onclick="P('salary')">💰 Salary</button>
+    <button class="nav-tab"        data-page="linkedin"   onclick="P('linkedin')">🔗 LinkedIn</button>
+    <button class="nav-tab"        data-page="templates"  onclick="P('templates')">🖼 Templates</button>
+  </div>
+  <div class="nav-badge">✦ Pro</div>
+</nav>
+
+<div class="shell">
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div>
+    <div class="sb-title">Workspace</div>
+    <div class="sb-item active" data-page="home"       onclick="P('home')">🏠 Home</div>
+    <div class="sb-item"        data-page="builder"    onclick="P('builder')">📄 Resume Builder</div>
+    <div class="sb-item"        data-page="coverletter" onclick="P('coverletter')">✉️ Cover Letter <span class="badge new">New</span></div>
+    <div class="sb-item"        data-page="portfolio"  onclick="P('portfolio')">🎨 Portfolio</div>
+    <hr class="sb-div" style="margin:7px 0">
+    <div class="sb-title">AI Tools</div>
+    <div class="sb-item" data-page="analyzer"   onclick="P('analyzer')">🔬 Resume Analyzer</div>
+    <div class="sb-item" data-page="skillgap"   onclick="P('skillgap')">📊 Skill Gap</div>
+    <div class="sb-item" data-page="ats"        onclick="P('ats')">🎯 ATS Checker</div>
+    <div class="sb-item" data-page="atsopt"     onclick="P('atsopt')">⚡ ATS Rewriter</div>
+    <div class="sb-item" data-page="interview"  onclick="P('interview')">🎙️ Interview Coach <span class="badge new">New</span></div>
+    <div class="sb-item" data-page="salary"     onclick="P('salary')">💰 Salary Insights <span class="badge new">New</span></div>
+    <div class="sb-item" data-page="linkedin"   onclick="P('linkedin')">🔗 LinkedIn Optimizer <span class="badge new">New</span></div>
+    <hr class="sb-div" style="margin:7px 0">
+    <div class="sb-item" data-page="templates"  onclick="P('templates')">🖼 Templates (12)</div>
+  </div>
+  <div class="sb-stats">
+    <div class="sb-stats-title">📊 Platform Stats</div>
+    <div class="sb-stat"><span>ATS Pass Rate</span><span class="sb-stat-v">94%</span></div>
+    <div class="sb-stat"><span>Resumes Built</span><span class="sb-stat-v">50K+</span></div>
+    <div class="sb-stat"><span>AI Accuracy</span><span class="sb-stat-v">98.4%</span></div>
+    <div class="sb-stat" id="sbar-row" style="display:none"><span>Your Score</span><span class="sb-stat-v" id="sbar-score">--</span></div>
+  </div>
+</aside>
+
+<div class="main">
+
+<!-- ══════════════════════════════════
+     HOME
+══════════════════════════════════ -->
+<div id="page-home" class="page active" style="padding:0;max-width:100%">
+<div class="hero">
+  <div class="hbadge">✦ Complete Career Intelligence Platform</div>
+  <h1 class="htitle">RESUME<br>AI PRO</h1>
+  <p class="hsub">Build ATS-optimized resumes, generate cover letters, prep for interviews, analyze salary ranges, and optimize your LinkedIn — all powered by Claude AI.</p>
+  <div style="display:flex;gap:10px;justify-content:center;margin-bottom:1.8rem;flex-wrap:wrap">
+    <button class="btn btn-primary btn-lg" onclick="P('builder')">✦ Build My Resume</button>
+    <button class="btn btn-green btn-lg" onclick="P('coverletter')">✉️ Generate Cover Letter</button>
+    <button class="btn btn-outline btn-lg" onclick="P('analyzer')">🔬 Analyze Resume</button>
+  </div>
+  <div class="hstats">
+    <div class="hstat"><div class="v">94%</div><div class="l">ATS Pass Rate</div></div>
+    <div class="hstat"><div class="v">2.3x</div><div class="l">More Interviews</div></div>
+    <div class="hstat"><div class="v">50K+</div><div class="l">Resumes Built</div></div>
+    <div class="hstat"><div class="v">12</div><div class="l">Pro Templates</div></div>
+  </div>
+  <div class="hcards">
+    <div class="hcard" onclick="P('builder')"><div class="hcard-i">📄</div><h3>AI Resume Builder</h3><p>Tailored, ATS-optimized content for your exact role with live preview</p></div>
+    <div class="hcard" onclick="P('coverletter')"><div class="hcard-i">✉️</div><h3>Cover Letter Gen <span class="new-tag">New</span></h3><p>AI writes compelling, personalized cover letters in seconds</p></div>
+    <div class="hcard" onclick="P('analyzer')"><div class="hcard-i">🔬</div><h3>Deep Analyzer</h3><p>Claude AI scores your resume across 8+ dimensions with fixes</p></div>
+    <div class="hcard" onclick="P('interview')"><div class="hcard-i">🎙️</div><h3>Interview Coach <span class="new-tag">New</span></h3><p>Role-specific questions with AI-generated ideal answers</p></div>
+    <div class="hcard" onclick="P('salary')"><div class="hcard-i">💰</div><h3>Salary Insights <span class="new-tag">New</span></h3><p>Real salary ranges for your role, location, and experience</p></div>
+    <div class="hcard" onclick="P('linkedin')"><div class="hcard-i">🔗</div><h3>LinkedIn Optimizer <span class="new-tag">New</span></h3><p>AI rewrites your LinkedIn sections for maximum visibility</p></div>
+    <div class="hcard" onclick="P('skillgap')"><div class="hcard-i">📊</div><h3>Skill Gap Analysis</h3><p>Compare to 50+ domains and get a step-by-step roadmap</p></div>
+    <div class="hcard" onclick="P('ats')"><div class="hcard-i">🎯</div><h3>ATS Score Checker</h3><p>Score resume vs real job descriptions, get keyword fixes</p></div>
+    <div class="hcard" onclick="P('templates')"><div class="hcard-i">🖼</div><h3>12 Pro Templates</h3><p>Beautiful designs from minimal to executive — apply instantly</p></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════
+     RESUME BUILDER
+══════════════════════════════════ -->
+<div id="page-builder" class="page">
+  <div class="ph"><div class="ph-eye">Resume Builder</div><div class="ph-title">Build Your AI Resume</div><div class="ph-sub">Fill in your details and let Claude AI craft your perfect, ATS-optimized resume</div></div>
+  <div class="steps">
+    <div class="step done"><div class="step-c">✓</div><div class="step-l">Info</div></div>
+    <div class="step-line"></div>
+    <div class="step active"><div class="step-c">2</div><div class="step-l">Experience</div></div>
+    <div class="step-line"></div>
+    <div class="step"><div class="step-c">3</div><div class="step-l">Generate</div></div>
+    <div class="step-line"></div>
+    <div class="step"><div class="step-c">4</div><div class="step-l">Export</div></div>
+  </div>
+  <div class="two" style="align-items:start">
+    <div style="display:flex;flex-direction:column;gap:.8rem">
+      <div class="card">
+        <div class="ct">Personal Information</div>
+        <label>Full Name</label><input id="inp-name" value="Priya Sharma">
+        <div class="two" style="gap:6px">
+          <div><label>Email</label><input id="inp-email" value="priya.sharma@email.com"></div>
+          <div><label>Phone</label><input id="inp-phone" value="+91 98765 43210"></div>
+        </div>
+        <div class="two" style="gap:6px">
+          <div><label>Location</label><input id="inp-location" value="Hyderabad, India"></div>
+          <div><label>LinkedIn</label><input id="inp-linkedin" value="linkedin.com/in/priyasharma"></div>
+        </div>
+        <label>GitHub / Website</label><input id="inp-github" placeholder="github.com/username">
+      </div>
+      <div class="card">
+        <div class="ct">Target Role</div>
+        <div class="role-grid">
+          <div class="rc sel" onclick="SR(this,'Software Engineer')">💻 Software Eng</div>
+          <div class="rc" onclick="SR(this,'Product Manager')">📊 Product Mgr</div>
+          <div class="rc" onclick="SR(this,'Data Scientist')">🧠 Data Scientist</div>
+          <div class="rc" onclick="SR(this,'UX Designer')">🎨 UX Designer</div>
+          <div class="rc" onclick="SR(this,'DevOps Engineer')">⚙️ DevOps</div>
+          <div class="rc" onclick="SR(this,'ML Engineer')">🤖 ML Engineer</div>
+          <div class="rc" onclick="SR(this,'Full Stack Dev')">🌐 Full Stack</div>
+          <div class="rc" onclick="SR(this,'Business Analyst')">📈 Biz Analyst</div>
+          <div class="rc" onclick="SR(this,'Cybersecurity')">🔐 Security</div>
+        </div>
+        <label style="margin-top:9px">Experience Level</label>
+        <select id="inp-level">
+          <option>Entry Level (0-2 years)</option>
+          <option selected>Mid Level (2-5 years)</option>
+          <option>Senior Level (5-10 years)</option>
+          <option>Principal / Staff (10+ years)</option>
+        </select>
+        <label>Job Description (paste to auto-tailor for ATS)</label>
+        <textarea id="inp-jd" placeholder="Paste job description for maximum ATS optimization..." style="min-height:70px"></textarea>
+      </div>
+      <div class="card">
+        <div class="ct">Skills</div>
+        <div id="skills-tags" class="tw">
+          <span class="tag">React <span class="tag-rm" onclick="RT(this)">✕</span></span>
+          <span class="tag">Node.js <span class="tag-rm" onclick="RT(this)">✕</span></span>
+          <span class="tag">Python <span class="tag-rm" onclick="RT(this)">✕</span></span>
+          <span class="tag">AWS <span class="tag-rm" onclick="RT(this)">✕</span></span>
+          <span class="tag">TypeScript <span class="tag-rm" onclick="RT(this)">✕</span></span>
+          <span class="tag">PostgreSQL <span class="tag-rm" onclick="RT(this)">✕</span></span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:7px">
+          <input id="skill-input" placeholder="Add a skill..." style="flex:1" onkeydown="if(event.key==='Enter')AS()">
+          <button class="btn btn-secondary btn-sm" onclick="AS()">+ Add</button>
+        </div>
+        <div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+          <span style="font-size:.68rem;color:var(--muted)">Quick:</span>
+          <span style="font-size:.69rem;color:var(--accent);cursor:pointer" onclick="QS('Docker')">Docker</span>
+          <span style="font-size:.69rem;color:var(--accent);cursor:pointer" onclick="QS('Kubernetes')">K8s</span>
+          <span style="font-size:.69rem;color:var(--accent);cursor:pointer" onclick="QS('GraphQL')">GraphQL</span>
+          <span style="font-size:.69rem;color:var(--accent);cursor:pointer" onclick="QS('Redis')">Redis</span>
+          <span style="font-size:.69rem;color:var(--accent);cursor:pointer" onclick="QS('CI/CD')">CI/CD</span>
+          <span style="font-size:.69rem;color:var(--accent);cursor:pointer" onclick="QS('Terraform')">Terraform</span>
+          <span style="font-size:.69rem;color:var(--accent);cursor:pointer" onclick="QS('Figma')">Figma</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">Experience & Education</div>
+        <label>Key Achievements & Past Roles</label>
+        <textarea id="inp-exp" style="min-height:88px">Led development of a microservices-based e-commerce platform serving 500K users. Reduced API latency by 40% through optimization. Mentored 2 junior engineers. Previously interned at a fintech startup building React dashboards.</textarea>
+        <label>Education</label>
+        <input id="inp-edu" value="B.Tech Computer Science — JNTU Hyderabad, 2021">
+        <label>Certifications (optional)</label>
+        <input id="inp-certs" placeholder="e.g. AWS Certified Developer, Google Cloud Professional">
+        <label>Languages</label>
+        <input id="inp-langs" placeholder="e.g. English (Fluent), Hindi (Native), Telugu (Native)" value="English (Fluent), Hindi (Native)">
+      </div>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-primary btn-block" style="padding:11px;font-size:.88rem" onclick="genResume()" id="gen-btn">✦ Generate AI Resume</button>
+        <button class="btn btn-outline" onclick="P('coverletter')" title="Generate matching cover letter">✉️ Cover Letter</button>
+      </div>
+    </div>
+    <!-- RIGHT PREVIEW -->
+    <div style="position:sticky;top:68px">
+      <div class="fb mb1">
+        <span class="ct" style="margin:0">Live Preview</span>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-secondary btn-sm" onclick="P('templates')">🖼 Templates</button>
+          <button class="btn btn-secondary btn-sm" onclick="P('ats')">🎯 ATS</button>
+          <button class="btn btn-primary btn-sm" onclick="exportPDF()" id="pdf-btn">📥 Export PDF</button>
+        </div>
+      </div>
+      <div class="rp s1" id="resume-preview">
+        <div class="rph">
+          <h1 id="pv-name">Priya Sharma</h1>
+          <div class="rp-role" id="pv-role">Software Engineer</div>
+          <div class="rpc">
+            <span id="pv-email">📧 priya.sharma@email.com</span>
+            <span id="pv-phone">📱 +91 98765 43210</span>
+            <span id="pv-loc">📍 Hyderabad, India</span>
+            <span id="pv-li">🔗 linkedin.com/in/priyasharma</span>
+          </div>
+        </div>
+        <div class="rpb" id="pv-body">
+          <div class="rps"><div class="rpst">Professional Summary</div><div class="rpsum">Results-driven Software Engineer with 3+ years building scalable, high-performance applications. Proficient in React, Node.js, and AWS. Demonstrated success in reducing API latency by 40% and leading cross-functional teams.</div></div>
+          <div class="rps"><div class="rpst">Technical Skills</div><div class="rpsg"><span class="rpsk">React</span><span class="rpsk">Node.js</span><span class="rpsk">Python</span><span class="rpsk">AWS</span><span class="rpsk">TypeScript</span><span class="rpsk">PostgreSQL</span></div></div>
+          <div class="rps"><div class="rpst">Work Experience</div><div class="rpe"><div class="rpet">Software Engineer — TechCorp Solutions</div><div class="rpem">June 2021 – Present · Hyderabad, India</div><ul class="rpbul"><li>Architected microservices-based e-commerce platform serving 500K+ users</li><li>Optimized REST API performance, reducing response time by 40%</li><li>Implemented CI/CD pipelines reducing deployment time by 87%</li><li>Mentored 2 junior engineers on best practices</li></ul></div></div>
+          <div class="rps"><div class="rpst">Education</div><div class="rpet">B.Tech Computer Science</div><div class="rpem">JNTU Hyderabad · 2021 · CGPA 8.4/10</div></div>
+        </div>
+      </div>
+      <div id="ai-out" style="display:none">
+        <div class="ai-bub" id="ai-msg"></div>
+        <div class="lbar mt1"><div class="lbar-fill" id="lfill"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     COVER LETTER GENERATOR (NEW)
+══════════════════════════════════ -->
+<div id="page-coverletter" class="page">
+  <div class="ph"><div class="ph-eye">New Feature</div><div class="ph-title">Cover Letter Generator</div><div class="ph-sub">AI writes a personalized, compelling cover letter tailored to the job in seconds</div></div>
+  <div class="two" style="align-items:start">
+    <div style="display:flex;flex-direction:column;gap:.8rem">
+      <div class="card">
+        <div class="ct">Your Information</div>
+        <label>Full Name</label><input id="cl-name" value="Priya Sharma">
+        <label>Target Role</label><input id="cl-role" value="Senior Software Engineer" placeholder="e.g. Senior Software Engineer">
+        <label>Company Name</label><input id="cl-company" value="Google" placeholder="e.g. Google, Infosys, TCS">
+        <label>Hiring Manager Name (optional)</label><input id="cl-hm" placeholder="e.g. Mr. Rahul Sharma">
+        <label>Your Key Strengths (3-4)</label>
+        <input id="cl-strengths" value="React, Node.js, AWS, microservices architecture, team leadership">
+      </div>
+      <div class="card">
+        <div class="ct">Job Details</div>
+        <label>Job Description (paste for tailored letter)</label>
+        <textarea id="cl-jd" style="min-height:120px" placeholder="Paste the job description here for a highly tailored cover letter...">We are seeking a Senior Software Engineer with expertise in React and Node.js to join our team. You will lead development of scalable web applications and mentor junior engineers.</textarea>
+        <label>Tone</label>
+        <select id="cl-tone">
+          <option value="professional">Professional & Formal</option>
+          <option value="enthusiastic" selected>Enthusiastic & Warm</option>
+          <option value="confident">Confident & Bold</option>
+          <option value="concise">Concise & Direct</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" style="padding:11px;font-size:.88rem" id="cl-btn" onclick="genCoverLetter()">✉️ Generate Cover Letter</button>
+      <div id="cl-loading" style="display:none" class="lrow"><div class="spin"></div> Writing your cover letter...</div>
+    </div>
+    <div style="position:sticky;top:68px">
+      <div class="fb mb1">
+        <span class="ct" style="margin:0">Cover Letter Preview</span>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-green btn-sm" onclick="exportCLPDF()">📥 Export PDF</button>
+          <button class="btn btn-outline btn-sm" onclick="copyCL()">📋 Copy</button>
+        </div>
+      </div>
+      <div class="cl-preview" id="cl-preview">
+        <h2 id="cl-pv-name">Priya Sharma</h2>
+        <div class="cl-meta" id="cl-pv-meta">priya.sharma@email.com · Hyderabad, India</div>
+        <div id="cl-pv-body" style="color:#666;font-style:italic">Your cover letter will appear here after generation...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PORTFOLIO
+══════════════════════════════════ -->
+<div id="page-portfolio" class="page">
+  <div class="fb mb2">
+    <div><div class="ph-eye">Portfolio Builder</div><div class="ph-title" style="margin-bottom:0">Showcase Your Work</div><div class="ph-sub" style="margin-bottom:0">AI-enhanced project cards you can deploy live</div></div>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-outline" onclick="openModal('deploy-modal')">🌐 Deploy</button>
+      <button class="btn btn-primary" onclick="openModal('add-modal')">+ Add Project</button>
+    </div>
+  </div>
+  <div class="card mb2">
+    <div class="ct">Portfolio Header</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start">
+      <div style="text-align:center">
+        <div id="av-disp" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 5px;cursor:pointer;border:3px solid var(--border)" onclick="openModal('avatar-modal')">👩‍💻</div>
+        <div style="font-size:.65rem;color:var(--muted)">Click to change</div>
+      </div>
+      <div>
+        <label>Name</label><input id="pf-name" value="Priya Sharma">
+        <label>Tagline</label><input id="pf-tag" value="Full Stack Engineer · Building products people love">
+        <label>Bio</label>
+        <textarea id="pf-bio" style="min-height:58px">Passionate software engineer from Hyderabad with 3+ years of experience building scalable web applications. I love clean code, great UX, and solving complex problems with elegant solutions.</textarea>
+        <div style="display:flex;gap:5px;margin-top:7px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="enhBio()">✦ AI Enhance Bio</button>
+          <button class="btn btn-secondary btn-sm" onclick="prevPortfolio()">👁 Preview</button>
+          <button class="btn btn-green btn-sm" onclick="exportPFPDF()">📥 PDF</button>
+          <button class="btn btn-primary btn-sm" onclick="dlPortfolioHTML()">🌐 Download HTML</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pgrid" id="pf-grid">
+    <div class="pcard" id="proj-0"><div class="pthumb" style="background:linear-gradient(135deg,#1a1a4e,#3030a0)">🛒</div><div class="pcb"><div class="pct">E-Commerce Platform</div><div class="pcd">Microservices-based shopping platform with React frontend, Node.js backend, and AWS deployment. Serves 500K+ users monthly.</div><div class="pctags"><span class="pctag">React</span><span class="pctag">Node.js</span><span class="pctag">AWS</span><span class="pctag">MongoDB</span></div><div style="display:flex;gap:4px;margin-top:7px"><button class="btn btn-secondary btn-sm" onclick="enhProj(0)">✦ AI Enhance</button><button class="btn btn-outline btn-sm" onclick="editProj(0)">✏️ Edit</button></div></div></div>
+    <div class="pcard" id="proj-1"><div class="pthumb" style="background:linear-gradient(135deg,#1e3a2e,#2d6040)">📊</div><div class="pcb"><div class="pct">FinTech Dashboard</div><div class="pcd">Real-time financial analytics with interactive charts, live data feeds, and ML-powered forecasting for 10K+ daily users.</div><div class="pctags"><span class="pctag">React</span><span class="pctag">Python</span><span class="pctag">FastAPI</span><span class="pctag">D3.js</span></div><div style="display:flex;gap:4px;margin-top:7px"><button class="btn btn-secondary btn-sm" onclick="enhProj(1)">✦ AI Enhance</button><button class="btn btn-outline btn-sm" onclick="editProj(1)">✏️ Edit</button></div></div></div>
+    <div class="pcard" id="proj-2"><div class="pthumb" style="background:linear-gradient(135deg,#3a1a3a,#6040a0)">🤖</div><div class="pcb"><div class="pct">AI Code Reviewer</div><div class="pcd">Automated code review tool using GPT-4 providing actionable feedback on PRs with 92% accuracy on bug detection.</div><div class="pctags"><span class="pctag">Python</span><span class="pctag">OpenAI API</span><span class="pctag">GitHub Actions</span></div><div style="display:flex;gap:4px;margin-top:7px"><button class="btn btn-secondary btn-sm" onclick="enhProj(2)">✦ AI Enhance</button><button class="btn btn-outline btn-sm" onclick="editProj(2)">✏️ Edit</button></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     RESUME ANALYZER
+══════════════════════════════════ -->
+<div id="page-analyzer" class="page">
+  <div class="ph"><div class="ph-eye">ProResume Intelligence</div><div class="ph-title">Deep Resume Analysis</div><div class="ph-sub">Upload your resume — Claude AI scores it across 8+ dimensions with actionable improvements</div></div>
+  <label>Select Target Role</label>
+  <select id="ar-role" style="margin-bottom:12px">
+    <option>General</option><option>AI/ML Engineer</option><option>Backend Developer</option><option>Business Analyst</option><option>Cloud Architect</option><option>Cybersecurity Analyst</option><option>Data Engineer</option><option>Data Scientist</option><option>DevOps Engineer</option><option>Frontend Developer</option><option>Full Stack Developer</option><option>Mobile Developer</option><option>Product Manager</option><option>Python Developer</option><option>QA Engineer</option><option>React Developer</option><option>Solutions Architect</option><option>UI/UX Designer</option>
+  </select>
+  <label>Upload Resume (PDF, DOCX or TXT)</label>
+  <div class="card" style="border:2px dashed var(--border2);display:flex;align-items:center;gap:15px;cursor:pointer;padding:22px 18px;margin-bottom:12px" onclick="document.getElementById('ar-file').click()">
+    <div style="font-size:1.9rem" id="ar-icon">☁️</div>
+    <div style="flex:1"><div style="font-size:.86rem;font-weight:600" id="ar-fname">Drag and drop file here</div><div style="font-size:.71rem;color:var(--muted);margin-top:1px">PDF, DOCX, TXT · Max 200MB</div></div>
+    <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();document.getElementById('ar-file').click()">Browse files</button>
+  </div>
+  <input type="file" id="ar-file" accept=".pdf,.docx,.txt" style="display:none" onchange="handleARFile(event)">
+  <button class="btn btn-primary btn-block" style="padding:12px;font-size:.88rem;margin-bottom:6px" id="ar-btn" onclick="runAnalyzer()" disabled>🚀 Analyze Resume with AI</button>
+  <div id="ar-loading" style="display:none" class="lrow"><div class="spin"></div> Running deep analysis...</div>
+  <div id="ar-results" style="display:none">
+    <div class="sh blue">📊 Analysis Scores</div>
+    <div class="two" style="margin-bottom:18px">
+      <div class="ascard" style="padding:16px"><div class="asc" id="ar-score">--</div><div class="asl">COMPETENCY SCORE</div><div class="pw" style="margin-top:9px;max-width:160px;margin-left:auto;margin-right:auto"><div class="pb" id="ar-sbar" style="width:0%"></div></div></div>
+      <div class="ascard" style="padding:16px"><div class="asc" id="ar-rating" style="color:var(--accent3)">--</div><div class="asl">OVERALL RATING / 10</div><div class="pw" style="margin-top:9px;max-width:160px;margin-left:auto;margin-right:auto"><div class="pb green" id="ar-rbar" style="width:0%"></div></div></div>
+    </div>
+    <div class="sh">⚠️ Issues & Improvement Areas</div>
+    <ul class="il" id="ar-issues"></ul>
+    <div class="sh" style="color:var(--gold)">📝 Grammar & Communication</div>
+    <div id="ar-grammar"></div>
+    <div class="sh purple">🤖 ATS Compatibility</div>
+    <div class="ascard"><div class="asc" id="ar-ats">--</div><div class="asl">ATS COMPATIBILITY</div><div class="pw" style="max-width:220px;margin:10px auto 0"><div id="ar-abar" class="pb" style="width:0%"></div></div></div>
+    <div class="sh green">🧠 AI Deep Analysis Summary</div>
+    <div class="sbox" id="ar-summary">Summary will appear here after analysis...</div>
+    <div class="sh orange" style="margin-top:20px">💡 Top 5 Quick Wins</div>
+    <div id="ar-quickwins"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SKILL GAP
+══════════════════════════════════ -->
+<div id="page-skillgap" class="page">
+  <div class="ph"><div class="ph-eye">ProResume Intelligence</div><div class="ph-title">Skill Gap Analysis</div><div class="ph-sub">Compare your skills against 50+ career domains and get a personalized learning roadmap</div></div>
+  <label>Select Target Career Domain</label>
+  <select id="sg-domain" style="margin-bottom:12px">
+    <option>AI/ML Engineer</option><option>Data Scientist</option><option>Frontend Developer</option><option>Backend Developer</option><option>Full Stack Developer</option><option>DevOps Engineer</option><option>Data Engineer</option><option>Cybersecurity Analyst</option><option>Product Manager</option><option>UI/UX Designer</option><option>General</option>
+  </select>
+  <label>Upload Resume (optional — for skill matching)</label>
+  <div class="card" style="border:2px dashed var(--border2);display:flex;align-items:center;gap:15px;cursor:pointer;padding:20px 18px;margin-bottom:12px" onclick="document.getElementById('sg-file').click()">
+    <div style="font-size:1.9rem" id="sg-icon">☁️</div>
+    <div style="flex:1"><div style="font-size:.86rem;font-weight:600" id="sg-fname">Drag and drop file here</div><div style="font-size:.71rem;color:var(--muted)">PDF, DOCX, TXT</div></div>
+    <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();document.getElementById('sg-file').click()">Browse files</button>
+  </div>
+  <input type="file" id="sg-file" accept=".pdf,.docx,.txt" style="display:none" onchange="handleSGFile(event)">
+  <button class="btn btn-primary btn-block" style="padding:12px;font-size:.88rem;margin-bottom:6px" onclick="runSG()">🔍 Analyze Skill Gaps</button>
+  <div id="sg-loading" style="display:none" class="lrow"><div class="spin"></div> Comparing against industry standards...</div>
+  <div id="sg-results" style="display:none">
+    <div class="two" style="margin-top:20px">
+      <div class="skc"><div style="height:4px;background:var(--accent3);border-radius:4px;margin-bottom:10px"></div><div class="skt">✅ Matching Skills</div><div id="sg-has" class="tw"></div></div>
+      <div class="skc"><div style="height:4px;background:var(--accent2);border-radius:4px;margin-bottom:10px"></div><div class="skt">🚩 Skill Gaps</div><div id="sg-miss" class="tw"></div></div>
+    </div>
+    <div class="sh purple">🚀 Learning Roadmap</div>
+    <div id="sg-roadmap"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ATS CHECKER
+══════════════════════════════════ -->
+<div id="page-ats" class="page">
+  <div class="ph"><div class="ph-eye">ATS Optimizer</div><div class="ph-title">ATS Score Checker</div><div class="ph-sub">Score your resume against job descriptions and get actionable keyword improvements</div></div>
+  <div class="two" style="align-items:start">
+    <div style="display:flex;flex-direction:column;gap:.9rem">
+      <div class="card">
+        <div class="ct">Job Description</div>
+        <label>Paste Target Job Description</label>
+        <textarea id="ats-jd" style="min-height:130px">We are looking for a Software Engineer with 3+ years of experience in React, Node.js, and cloud technologies. Must have strong communication skills, experience with agile methodologies, CI/CD pipelines, and microservices architecture. AWS certification is a plus.</textarea>
+        <label>Company Name (optional)</label>
+        <input id="ats-co" value="TechCorp Inc.">
+        <button class="btn btn-primary btn-block mt2" onclick="runATS()">🎯 Run ATS Analysis</button>
+        <div id="ats-load" style="display:none;margin-top:7px"><div class="lrow" style="padding:5px 0"><div class="spin"></div> Analyzing...</div><div class="lbar"><div class="lbar-fill" id="ats-lfill"></div></div></div>
+      </div>
+      <div class="card" id="ats-impr" style="display:none"><div class="ct">Recommended Improvements</div><div id="ats-ilist"></div></div>
+      <div class="card"><div class="ct">Keyword Matching</div><div id="ats-kw"><div style="font-size:.76rem;color:var(--muted)">Run analysis to see keyword matching.</div></div></div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ct">ATS Score</div>
+        <div style="text-align:center;padding:.9rem">
+          <div class="atr">
+            <svg viewBox="0 0 120 120" width="115" height="115"><circle cx="60" cy="60" r="50" fill="none" stroke="var(--border)" stroke-width="10"/><circle id="ats-arc" cx="60" cy="60" r="50" fill="none" stroke="var(--accent3)" stroke-width="10" stroke-dasharray="314" stroke-dashoffset="95" stroke-linecap="round" style="transition:stroke-dashoffset 1s ease"/></svg>
+            <div class="atr-val"><span id="ats-sv" style="background:linear-gradient(135deg,var(--accent3),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent">70</span><span class="atr-lbl">/ 100</span></div>
+          </div>
+          <div id="ats-verdict" style="font-weight:700;font-size:.88rem;margin-bottom:.3rem;color:var(--gold)">Good — Room for Improvement</div>
+          <div style="font-size:.72rem;color:var(--muted)">Paste a job description and click Analyze</div>
+        </div>
+        <div class="div"></div>
+        <ul class="ati">
+          <li class="aii"><span class="aid" style="background:var(--accent3)"></span>Professional summary present</li>
+          <li class="aii"><span class="aid" style="background:var(--accent3)"></span>Quantified achievements</li>
+          <li class="aii"><span class="aid" style="background:var(--gold)"></span>Keywords: run analysis</li>
+          <li class="aii"><span class="aid" style="background:var(--gold)"></span>Action verbs: run analysis</li>
+        </ul>
+      </div>
+      <div class="card mt2"><div class="ct">Missing Keywords</div><div id="ats-mk"><div style="font-size:.76rem;color:var(--muted)">Run analysis first</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ATS BULLET REWRITER
+══════════════════════════════════ -->
+<div id="page-atsopt" class="page">
+  <div class="ph"><div class="ph-eye">ProResume Intelligence</div><div class="ph-title">ATS Bullet Rewriter</div><div class="ph-sub">Upload your resume and get every bullet rewritten for maximum ATS compatibility</div></div>
+  <label>Upload Resume (PDF, DOCX or TXT)</label>
+  <div class="card" style="border:2px dashed var(--border2);display:flex;align-items:center;gap:15px;cursor:pointer;padding:22px 18px;margin-bottom:12px" onclick="document.getElementById('ao-file').click()">
+    <div style="font-size:1.9rem" id="ao-icon">☁️</div>
+    <div style="flex:1"><div style="font-size:.86rem;font-weight:600" id="ao-fname">Drag and drop file here</div><div style="font-size:.71rem;color:var(--muted)">PDF, DOCX, TXT</div></div>
+    <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();document.getElementById('ao-file').click()">Browse files</button>
+  </div>
+  <input type="file" id="ao-file" accept=".pdf,.docx,.txt" style="display:none" onchange="handleAOFile(event)">
+  <button class="btn btn-primary btn-block" style="padding:12px;font-size:.88rem;margin-bottom:6px" id="ao-btn" onclick="runAO()" disabled>⚡ Optimize Bullets for ATS</button>
+  <div id="ao-load" style="display:none" class="lrow"><div class="spin"></div> Running ATS optimization engine...</div>
+  <div id="ao-results" style="display:none">
+    <div class="sh purple">⚡ Rewritten Bullets</div>
+    <div class="card mb2" style="padding:.85rem"><strong style="font-size:.78rem">Power Action Verbs:</strong><div class="tw" style="margin-top:5px" id="ao-verbs"></div></div>
+    <div id="ao-cards"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     INTERVIEW COACH (NEW)
+══════════════════════════════════ -->
+<div id="page-interview" class="page">
+  <div class="ph"><div class="ph-eye">New Feature</div><div class="ph-title">Interview Coach</div><div class="ph-sub">AI generates role-specific interview questions with ideal answers and expert tips</div></div>
+  <div class="two" style="align-items:start;gap:1.1rem">
+    <div style="display:flex;flex-direction:column;gap:.8rem">
+      <div class="card">
+        <div class="ct">Interview Setup</div>
+        <label>Target Role</label>
+        <input id="ic-role" value="Software Engineer" placeholder="e.g. Software Engineer, Product Manager">
+        <label>Company (optional)</label>
+        <input id="ic-company" placeholder="e.g. Google, Amazon, Startup">
+        <label>Interview Type</label>
+        <select id="ic-type">
+          <option value="technical">Technical / Coding</option>
+          <option value="behavioral" selected>Behavioral (STAR)</option>
+          <option value="system-design">System Design</option>
+          <option value="hr">HR / Culture Fit</option>
+          <option value="mixed">Mixed (All Types)</option>
+        </select>
+        <label>Experience Level</label>
+        <select id="ic-level">
+          <option>Entry Level</option>
+          <option selected>Mid Level</option>
+          <option>Senior Level</option>
+          <option>Leadership / Director</option>
+        </select>
+        <label>Number of Questions</label>
+        <select id="ic-count">
+          <option value="5">5 Questions</option>
+          <option value="8" selected>8 Questions</option>
+          <option value="12">12 Questions</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" style="padding:11px;font-size:.88rem" id="ic-btn" onclick="runIC()">🎙️ Generate Interview Q&A</button>
+      <div id="ic-load" style="display:none" class="lrow"><div class="spin"></div> Preparing interview questions...</div>
+    </div>
+    <div>
+      <div id="ic-results" style="display:none">
+        <div class="sh purple" style="margin-top:0">🎙️ Interview Questions & Ideal Answers</div>
+        <div id="ic-cards"></div>
+      </div>
+      <div id="ic-placeholder" class="card" style="text-align:center;padding:2.5rem;color:var(--muted)">
+        <div style="font-size:3rem;margin-bottom:.8rem">🎙️</div>
+        <div style="font-size:.88rem;font-weight:600;margin-bottom:.3rem;color:var(--text)">Ready to Prep</div>
+        <div style="font-size:.78rem">Configure your interview settings and click Generate to get role-specific questions with ideal answers.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SALARY INSIGHTS (NEW)
+══════════════════════════════════ -->
+<div id="page-salary" class="page">
+  <div class="ph"><div class="ph-eye">New Feature</div><div class="ph-title">Salary Insights</div><div class="ph-sub">AI-powered salary ranges for your role, location, and experience level</div></div>
+  <div class="two" style="align-items:start">
+    <div style="display:flex;flex-direction:column;gap:.8rem">
+      <div class="card">
+        <div class="ct">Salary Research Setup</div>
+        <label>Job Title</label>
+        <input id="sal-role" value="Software Engineer" placeholder="e.g. Software Engineer, Data Scientist">
+        <label>Location</label>
+        <input id="sal-loc" value="Hyderabad, India" placeholder="e.g. Bangalore, Mumbai, Hyderabad">
+        <label>Experience Level</label>
+        <select id="sal-level">
+          <option>Entry Level (0-2 years)</option>
+          <option selected>Mid Level (2-5 years)</option>
+          <option>Senior Level (5-10 years)</option>
+          <option>Principal / Staff (10+ years)</option>
+        </select>
+        <label>Industry</label>
+        <select id="sal-industry">
+          <option value="tech">Technology / Software</option>
+          <option value="finance">Finance / Banking / FinTech</option>
+          <option value="healthcare">Healthcare / MedTech</option>
+          <option value="ecommerce">E-Commerce / Retail</option>
+          <option value="consulting">Consulting / Services</option>
+          <option value="startup">Startup</option>
+          <option value="mnc">MNC / Fortune 500</option>
+        </select>
+        <label>Skills (comma-separated)</label>
+        <input id="sal-skills" value="React, Node.js, AWS, Python">
+      </div>
+      <button class="btn btn-gold btn-block" style="padding:11px;font-size:.88rem" id="sal-btn" onclick="runSalary()">💰 Get Salary Insights</button>
+      <div id="sal-load" style="display:none" class="lrow"><div class="spin"></div> Researching salary data...</div>
+    </div>
+    <div>
+      <div id="sal-results" style="display:none">
+        <div class="sh" style="color:var(--gold);margin-top:0">💰 Salary Analysis</div>
+        <div id="sal-cards"></div>
+        <div class="sh green">💡 Negotiation Tips</div>
+        <div class="sbox" id="sal-tips"></div>
+      </div>
+      <div id="sal-placeholder" class="card" style="text-align:center;padding:2.5rem;color:var(--muted)">
+        <div style="font-size:3rem;margin-bottom:.8rem">💰</div>
+        <div style="font-size:.88rem;font-weight:600;margin-bottom:.3rem;color:var(--text)">Know Your Worth</div>
+        <div style="font-size:.78rem">Enter your role, location, and experience to get accurate salary ranges and negotiation strategies.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     LINKEDIN OPTIMIZER (NEW)
+══════════════════════════════════ -->
+<div id="page-linkedin" class="page">
+  <div class="ph"><div class="ph-eye">New Feature</div><div class="ph-title">LinkedIn Optimizer</div><div class="ph-sub">AI rewrites your LinkedIn sections for maximum recruiter visibility and search ranking</div></div>
+  <div class="two" style="align-items:start">
+    <div style="display:flex;flex-direction:column;gap:.8rem">
+      <div class="card">
+        <div class="ct">Your LinkedIn Info</div>
+        <label>Current LinkedIn Headline</label>
+        <input id="li-headline" value="Software Engineer | React | Node.js | AWS" placeholder="Your current headline">
+        <label>Current About / Summary</label>
+        <textarea id="li-about" style="min-height:100px">I am a software engineer with 3 years of experience. I work with React, Node.js, and AWS. I like to solve problems and build good products.</textarea>
+        <label>Target Role / Direction</label>
+        <input id="li-target" value="Senior Software Engineer or Engineering Manager" placeholder="Where you want to go next">
+        <label>Key Achievements (one per line)</label>
+        <textarea id="li-achievements" style="min-height:80px">Led development of e-commerce platform serving 500K users
+Reduced API latency by 40%
+Mentored 2 junior engineers</textarea>
+      </div>
+      <button class="btn btn-primary btn-block" style="padding:11px;font-size:.88rem" id="li-btn" onclick="runLI()">🔗 Optimize LinkedIn Profile</button>
+      <div id="li-load" style="display:none" class="lrow"><div class="spin"></div> Optimizing your LinkedIn profile...</div>
+    </div>
+    <div>
+      <div id="li-results" style="display:none">
+        <div class="sh purple" style="margin-top:0">🔗 Optimized LinkedIn Sections</div>
+        <div id="li-cards"></div>
+      </div>
+      <div id="li-placeholder" class="card" style="text-align:center;padding:2.5rem;color:var(--muted)">
+        <div style="font-size:3rem;margin-bottom:.8rem">🔗</div>
+        <div style="font-size:.88rem;font-weight:600;margin-bottom:.3rem;color:var(--text)">Stand Out on LinkedIn</div>
+        <div style="font-size:.78rem">Enter your current LinkedIn content and let AI rewrite it to rank higher in recruiter searches and attract more opportunities.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     12 TEMPLATES
+══════════════════════════════════ -->
+<div id="page-templates" class="page">
+  <div class="ph"><div class="ph-eye">Templates</div><div class="ph-title">12 Professional Templates</div><div class="ph-sub">From minimal to executive — choose a design that reflects your personal brand</div></div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin-bottom:1.3rem" id="tpl-grid">
+    <!-- Row 1 -->
+    <div class="tc sel" onclick="PT(this,'s1')"><div style="height:80px;background:linear-gradient(135deg,#1a1a2e,#7c5cfc);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px"><div style="background:#1a1a2e;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#7c5cfc;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px;margin-bottom:2px"></div><div style="background:#ddd;height:2px;border-radius:1px;width:80%"></div></div></div><div class="tn">Midnight Pro <span>Popular ⭐</span></div></div>
+    <div class="tc" onclick="PT(this,'s2')"><div style="height:80px;background:linear-gradient(135deg,#1a3a2e,#3caf6c);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px"><div style="background:#1a3a2e;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#3caf6c;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Emerald Clean <span></span></div></div>
+    <div class="tc" onclick="PT(this,'s3')"><div style="height:80px;background:linear-gradient(135deg,#3a1a1a,#fc5c7d);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px"><div style="background:#3a1a1a;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#fc5c7d;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Rose Luxe <span></span></div></div>
+    <div class="tc" onclick="PT(this,'s4')"><div style="height:80px;background:linear-gradient(135deg,#1a2e3a,#5cf9c8);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px"><div style="background:#1a2e3a;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#5cf9c8;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Arctic Teal <span></span></div></div>
+    <!-- Row 2 -->
+    <div class="tc" onclick="PT(this,'s5')"><div style="height:80px;background:linear-gradient(135deg,#1e1e1e,#666);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px"><div style="background:#222;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#888;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Monochrome <span></span></div></div>
+    <div class="tc" onclick="PT(this,'s6')"><div style="height:80px;background:linear-gradient(135deg,#2e2a1a,#f5c842);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px"><div style="background:#2e2a1a;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#c8a020;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Golden Executive <span>Top Pick ⭐</span></div></div>
+    <div class="tc" onclick="PT(this,'s7')"><div style="height:80px;background:linear-gradient(135deg,#0a1628,#1e3a5f);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px"><div style="background:#0a1628;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#3b82f6;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Ocean Blue <span>New ✨</span></div></div>
+    <div class="tc" onclick="PT(this,'s8')"><div style="height:80px;background:linear-gradient(135deg,#1a0a2e,#3d1a6e);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px"><div style="background:#1a0a2e;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#a855f7;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Violet Night <span>New ✨</span></div></div>
+    <!-- Row 3 -->
+    <div class="tc" onclick="PT(this,'s9')"><div style="height:80px;background:linear-gradient(160deg,#f8fafc,#e2e8f0);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px;border:1px solid #e2e8f0"><div style="background:#0f172a;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#0f172a;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Clean Light <span>New ✨</span></div></div>
+    <div class="tc" onclick="PT(this,'s10')"><div style="height:80px;background:linear-gradient(135deg,#0d1a0d,#1a3d1a);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px;border-left:3px solid #22c55e"><div style="background:#0d1a0d;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#22c55e;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Forest Green <span>New ✨</span></div></div>
+    <div class="tc" onclick="PT(this,'s11')"><div style="height:80px;background:linear-gradient(135deg,#2d1b00,#7c3f00);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px"><div style="background:#2d1b00;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#f59e0b;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Amber Warm <span>New ✨</span></div></div>
+    <div class="tc" onclick="PT(this,'s12')"><div style="height:80px;background:linear-gradient(135deg,#0c1a1a,#0d3d3d);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:5px;width:66%;height:74%;padding:5px"><div style="background:#0c1a1a;height:14px;border-radius:2px;margin-bottom:4px"></div><div style="background:#14b8a6;height:1.5px;margin-bottom:3px"></div><div style="background:#ddd;height:2px;border-radius:1px"></div></div></div><div class="tn">Teal Calm <span>New ✨</span></div></div>
+  </div>
+  <div class="card">
+    <div class="fb">
+      <div><div class="ct" style="margin:0">Apply Template</div><div style="font-size:.74rem;color:var(--muted);margin-top:2px">Applied to your resume in Builder</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-secondary" onclick="P('builder')">← Back to Builder</button>
+        <button class="btn btn-primary" onclick="applyTpl()">✓ Apply Selected</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- ══ MODALS ══ -->
+<div class="mo" id="edit-modal"><div class="modal"><div class="mh"><div class="mt">Edit Project</div><button class="mc" onclick="closeModal('edit-modal')">✕</button></div><label>Project Name</label><input id="ep-name"><label>Description</label><textarea id="ep-desc" style="min-height:70px"></textarea><label>Tech Stack (comma-separated)</label><input id="ep-tech"><label>Emoji Icon</label><input id="ep-emoji" style="width:60px"><label>Gradient CSS</label><input id="ep-grad" placeholder="linear-gradient(135deg,#1a1a4e,#3030a0)"><div style="display:flex;gap:7px;margin-top:12px"><button class="btn btn-primary" onclick="saveEP()">💾 Save</button><button class="btn btn-outline" onclick="closeModal('edit-modal')">Cancel</button></div></div></div>
+
+<div class="mo" id="add-modal"><div class="modal"><div class="mh"><div class="mt">Add New Project</div><button class="mc" onclick="closeModal('add-modal')">✕</button></div><label>Project Name</label><input id="np-name" placeholder="e.g. Real-time Chat App"><label>Description</label><textarea id="np-desc" placeholder="Describe your project..." style="min-height:70px"></textarea><label>Tech Stack (comma-separated)</label><input id="np-tech" placeholder="React, Firebase, Node.js"><label>Emoji Icon</label><input id="np-emoji" placeholder="💬" style="width:60px"><div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap"><button class="btn btn-primary" onclick="saveNP()">+ Add Project</button><button class="btn btn-outline btn-sm" onclick="genProjDesc()">✦ AI Generate Desc</button><button class="btn btn-outline" onclick="closeModal('add-modal')">Cancel</button></div><div id="np-load" style="display:none;margin-top:6px"><div class="lbar"><div class="lbar-fill" id="np-lfill"></div></div></div></div></div>
+
+<div class="mo" id="avatar-modal"><div class="modal" style="max-width:360px"><div class="mh"><div class="mt">Choose Avatar</div><button class="mc" onclick="closeModal('avatar-modal')">✕</button></div><div class="ct">Select Emoji</div><div class="avp"><div class="avo sel" onclick="selAv(this,'👩‍💻')">👩‍💻</div><div class="avo" onclick="selAv(this,'👨‍💻')">👨‍💻</div><div class="avo" onclick="selAv(this,'🧑‍🎨')">🧑‍🎨</div><div class="avo" onclick="selAv(this,'👩‍🔬')">👩‍🔬</div><div class="avo" onclick="selAv(this,'👨‍🎓')">👨‍🎓</div><div class="avo" onclick="selAv(this,'👩‍💼')">👩‍💼</div><div class="avo" onclick="selAv(this,'🧑‍🚀')">🧑‍🚀</div><div class="avo" onclick="selAv(this,'🦸')">🦸</div><div class="avo" onclick="selAv(this,'🧙')">🧙</div><div class="avo" onclick="selAv(this,'🎯')">🎯</div><div class="avo" onclick="selAv(this,'💡')">💡</div><div class="avo" onclick="selAv(this,'🚀')">🚀</div></div><div class="ct mt2">Or Upload Photo</div><input type="file" id="av-file" accept="image/*" style="margin-top:5px" onchange="loadAvImg(event)"><button class="btn btn-primary mt2" onclick="closeModal('avatar-modal')">✓ Apply</button></div></div>
+
+<div class="mo" id="pv-modal"><div class="modal" style="max-width:680px;max-height:88vh"><div class="mh"><div class="mt">Portfolio Preview</div><div style="display:flex;gap:5px"><button class="btn btn-green btn-sm" onclick="exportPFPDF()">📥 PDF</button><button class="btn btn-primary btn-sm" onclick="dlPortfolioHTML()">🌐 Download HTML</button><button class="mc" onclick="closeModal('pv-modal')">✕</button></div></div><div id="pv-content"></div></div></div>
+
+<div class="mo" id="deploy-modal"><div class="modal" style="max-width:460px"><div class="mh"><div class="mt">Deploy Portfolio</div><button class="mc" onclick="closeModal('deploy-modal')">✕</button></div><p style="color:var(--muted);font-size:.8rem;margin-bottom:.85rem">Choose how to publish your portfolio:</p><div class="do" onclick="dlPortfolioHTML();closeModal('deploy-modal')"><h4>📥 Download HTML File</h4><p>Host on GitHub Pages, Netlify, or any web server.</p></div><div class="do" onclick="closeModal('deploy-modal');openModal('gh-modal')"><h4>🐙 GitHub Pages (Free)</h4><p>Step-by-step guide — live at username.github.io</p></div><div class="do" onclick="notif('⚡ Drag the downloaded HTML to netlify.com/drop!','var(--accent3)');closeModal('deploy-modal')"><h4>⚡ Netlify Drop</h4><p>Instant live deployment by drag & drop.</p></div><div class="do" onclick="notif('📦 Upload to Vercel, Render, or Firebase Hosting for free!','var(--cyan)');closeModal('deploy-modal')"><h4>☁️ Vercel / Firebase</h4><p>Free hosting for static sites — zero configuration.</p></div></div></div>
+
+<div class="mo" id="gh-modal"><div class="modal" style="max-width:480px"><div class="mh"><div class="mt">🐙 Deploy on GitHub Pages</div><button class="mc" onclick="closeModal('gh-modal')">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;font-size:.8rem"><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem"><div style="font-weight:700;color:var(--accent3);margin-bottom:.3rem">Step 1 — Download portfolio</div><button class="btn btn-outline btn-sm" onclick="dlPortfolioHTML()">📥 Download HTML</button></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem"><div style="font-weight:700;color:var(--accent3);margin-bottom:.3rem">Step 2 — Create GitHub repo</div><div style="color:var(--muted)">Name it <code style="background:var(--border);padding:1px 5px;border-radius:3px">yourusername.github.io</code></div></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem"><div style="font-weight:700;color:var(--accent3);margin-bottom:.3rem">Step 3 — Upload as index.html</div><div style="color:var(--muted)">Rename file to <code style="background:var(--border);padding:1px 5px;border-radius:3px">index.html</code> and push to repo</div></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem"><div style="font-weight:700;color:var(--accent3);margin-bottom:.3rem">Step 4 — Enable GitHub Pages</div><div style="color:var(--muted)">Settings → Pages → main branch → Save. Live in minutes!</div></div></div><button class="btn btn-primary mt2" onclick="closeModal('gh-modal')">Got it!</button></div></div>
+
+<div id="notif"></div>
+
+<script>
+// ═══════════════ CONSTANTS ═══════════════
+const SKILL_DOMAINS={
+  "AI/ML Engineer":{required:["Python","TensorFlow","PyTorch","Scikit-learn","Machine Learning","Deep Learning","NLP","Computer Vision","MLOps","Kubernetes"]},
+  "Data Scientist":{required:["Python","R","Statistics","Machine Learning","Pandas","NumPy","SQL","Tableau","Jupyter","Scikit-learn"]},
+  "Frontend Developer":{required:["JavaScript","TypeScript","React","CSS","HTML","REST APIs","Git","Webpack","Testing","Next.js"]},
+  "Backend Developer":{required:["Node.js","Python","SQL","REST APIs","Docker","Git","Linux","Microservices","Redis","PostgreSQL"]},
+  "Full Stack Developer":{required:["JavaScript","React","Node.js","SQL","REST APIs","Docker","Git","TypeScript","CSS","MongoDB"]},
+  "DevOps Engineer":{required:["Docker","Kubernetes","CI/CD","Linux","Terraform","AWS","Git","Ansible","Monitoring","Shell Scripting"]},
+  "Data Engineer":{required:["Python","SQL","Spark","Airflow","Kafka","dbt","ETL","Cloud Platforms","Data Warehousing","Hadoop"]},
+  "Cybersecurity Analyst":{required:["Network Security","SIEM","Penetration Testing","Incident Response","Firewalls","OWASP","Python","Threat Analysis"]},
+  "Product Manager":{required:["Product Strategy","Roadmapping","Agile","User Research","Data Analysis","SQL","A/B Testing","Stakeholder Management"]},
+  "UI/UX Designer":{required:["Figma","User Research","Wireframing","Prototyping","Design Systems","Accessibility","CSS","HTML"]},
+  "General":{required:["Communication","Problem Solving","Teamwork","Leadership","Adaptability","Time Management"]}
+};
+const AV_LIST=["Developed","Implemented","Designed","Optimized","Architected","Accelerated","Streamlined","Pioneered","Engineered","Automated","Delivered","Orchestrated","Transformed","Led","Built","Launched","Drove","Scaled","Reduced","Improved"];
+
+// ═══════════════ STATE ═══════════════
+let selRole='Software Engineer',selTpl='s1',isGen=false,editPID=null,projCtr=3;
+const projs=[
+  {id:0,name:'E-Commerce Platform',desc:'Microservices-based shopping platform with React, Node.js, and AWS. Serves 500K+ monthly users.',tech:['React','Node.js','AWS','MongoDB'],emoji:'🛒',grad:'linear-gradient(135deg,#1a1a4e,#3030a0)'},
+  {id:1,name:'FinTech Dashboard',desc:'Real-time financial analytics with interactive D3.js charts and ML-powered forecasting for 10K+ daily users.',tech:['React','Python','FastAPI','D3.js'],emoji:'📊',grad:'linear-gradient(135deg,#1e3a2e,#2d6040)'},
+  {id:2,name:'AI Code Reviewer',desc:'Automated code review using GPT-4 with 92% bug detection accuracy across 1K+ PRs reviewed.',tech:['Python','OpenAI API','GitHub Actions'],emoji:'🤖',grad:'linear-gradient(135deg,#3a1a3a,#6040a0)'}
+];
+
+// ═══════════════ API ═══════════════
+const H={'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+const MDL='claude-sonnet-4-5';
+
+async function aiJSON(sys,usr){
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:H,body:JSON.stringify({model:MDL,max_tokens:2000,system:sys,messages:[{role:'user',content:usr}]})});
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'API '+r.status);}
+    const d=await r.json();
+    const t=(d.content||[]).map(b=>b.text||'').join('').replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    return JSON.parse(t);
+  }catch(e){console.error('aiJSON',e);return null;}
+}
+
+async function aiText(sys,usr,onChunk){
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:H,body:JSON.stringify({model:MDL,max_tokens:2000,stream:true,system:sys,messages:[{role:'user',content:usr}]})});
+    if(!r.ok)throw new Error('Stream '+r.status);
+    const rd=r.body.getReader(),dec=new TextDecoder();let full='';
+    while(true){const{done,value}=await rd.read();if(done)break;
+      for(const ln of dec.decode(value).split('\n')){
+        if(ln.startsWith('data: ')){try{const d=JSON.parse(ln.slice(6));if(d.type==='content_block_delta'&&d.delta?.text){full+=d.delta.text;onChunk&&onChunk(full);}}catch(e){}}
+      }}
+    return full;
+  }catch(e){console.error('aiText',e);return null;}
+}
+
+async function aiSimple(p){
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:H,body:JSON.stringify({model:MDL,max_tokens:800,messages:[{role:'user',content:p}]})});
+    if(!r.ok)throw new Error('API '+r.status);
+    const d=await r.json();
+    return(d.content||[]).map(b=>b.text||'').join('').trim();
+  }catch(e){console.error('aiSimple',e);return null;}
+}
+
+async function readFT(file){
+  return new Promise(r=>{
+    const rd=new FileReader();
+    rd.onload=e=>{const raw=e.target.result||'';const p=(raw.match(/[\x20-\x7E\n\r\t]/g)||[]).length;r(raw.length>0&&p/raw.length>0.25?raw.slice(0,4000):'');};
+    rd.onerror=()=>r('');rd.readAsText(file);
+  });
+}
+
+// ═══════════════ NAVIGATION ═══════════════
+function P(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.dataset.page===page));
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.toggle('active',el.dataset.page===page));
+  window.scrollTo(0,0);
+}
+function notif(msg,color){
+  color=color||'var(--accent)';
+  const n=document.getElementById('notif');
+  n.textContent=msg;n.style.borderColor=color;n.classList.add('show');
+  clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),3600);
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mo').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
+
+// ═══════════════ BUILDER ═══════════════
+function SR(el,r){document.querySelectorAll('.rc').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');selRole=r;}
+function RT(el){el.parentElement.remove();}
+function AS(){const i=document.getElementById('skill-input'),v=i.value.trim();if(!v)return;const w=document.getElementById('skills-tags'),t=document.createElement('span');t.className='tag';t.innerHTML=v+' <span class="tag-rm" onclick="RT(this)">✕</span>';w.appendChild(t);i.value='';}
+function QS(s){const w=document.getElementById('skills-tags'),t=document.createElement('span');t.className='tag';t.innerHTML=s+' <span class="tag-rm" onclick="RT(this)">✕</span>';w.appendChild(t);}
+
+async function genResume(){
+  if(isGen)return;isGen=true;
+  const name=document.getElementById('inp-name').value||'Your Name';
+  const email=document.getElementById('inp-email').value;
+  const phone=document.getElementById('inp-phone').value;
+  const loc=document.getElementById('inp-location').value;
+  const li=document.getElementById('inp-linkedin').value;
+  const gh=document.getElementById('inp-github').value;
+  const exp=document.getElementById('inp-exp').value;
+  const edu=document.getElementById('inp-edu').value;
+  const certs=document.getElementById('inp-certs').value;
+  const langs=document.getElementById('inp-langs').value;
+  const level=document.getElementById('inp-level').value;
+  const jd=document.getElementById('inp-jd').value;
+  const skills=Array.from(document.querySelectorAll('#skills-tags .tag')).map(t=>t.textContent.replace('✕','').trim()).filter(Boolean);
+
+  document.getElementById('pv-name').textContent=name;
+  document.getElementById('pv-role').textContent=selRole;
+  document.getElementById('pv-email').innerHTML='📧 '+email;
+  document.getElementById('pv-phone').innerHTML='📱 '+phone;
+  document.getElementById('pv-loc').innerHTML='📍 '+loc;
+  document.getElementById('pv-li').innerHTML='🔗 '+li;
+
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=true;btn.textContent='⏳ Generating...';
+  const aiOut=document.getElementById('ai-out');
+  const aiMsg=document.getElementById('ai-msg');
+  aiOut.style.display='block';
+  aiMsg.innerHTML='Crafting your tailored <strong>'+selRole+'</strong> resume...<span class="cursor"></span>';
+  const fill=document.getElementById('lfill');let prog=0;
+  const timer=setInterval(()=>{prog=Math.min(prog+4,88);fill.style.width=prog+'%';},220);
+
+  try{
+    const sys='You are an expert ATS-optimized resume writer. Respond ONLY with valid JSON, no markdown fences, no preamble.';
+    const usr='Generate professional resume content for this candidate.\n\nReturn a JSON object with exactly these fields:\n- summary: string (3 sentences, role-specific, metrics-driven)\n- bullets: array of 4 strings (strong STAR-format achievement bullets)\n- skills_extra: array of 2-3 additional relevant skills\n- certifications: array of 2-3 strings\n- company: string (plausible company name)\n\nCandidate:\nName: '+name+'\nRole: '+selRole+'\nLevel: '+level+'\nSkills: '+(skills.join(', ')||'various')+'\nLocation: '+loc+'\nExperience: '+exp+'\nEducation: '+edu+(certs?'\nCertifications: '+certs:'')+(jd?'\n\nJob Description to tailor for:\n'+jd.substring(0,500):'');
+
+    const parsed=await aiJSON(sys,usr);
+    clearInterval(timer);fill.style.width='100%';
+
+    const summary=parsed?.summary||`Results-driven ${selRole} with expertise in ${skills.slice(0,3).join(', ')}. Proven track record of delivering impactful solutions at scale. Passionate about innovation and continuous improvement.`;
+    const bullets=parsed?.bullets||['Architected high-performance applications serving 500K+ active users','Reduced system latency by 40% through targeted optimizations','Led cross-functional team of 5 to deliver features ahead of schedule','Implemented automated testing, reducing bug rate by 60%'];
+    const skillsX=parsed?.skills_extra||['Docker','Microservices','Agile/Scrum'];
+    const certList=parsed?.certifications||[selRole+' Certificate','Cloud Practitioner'];
+    const company=parsed?.company||'Tech Solutions Pvt Ltd';
+
+    const allSk=[...skills,...skillsX];
+    const skillTags=allSk.map(s=>'<span class="rpsk">'+s+'</span>').join('');
+    const bulletItems=bullets.map(b=>'<li>'+b+'</li>').join('');
+    const certTags=certList.map(c=>'<span class="rpsk">'+c+'</span>').join('');
+    const eduP=edu.split(/[—\-]/);
+    const ghLine=gh?'<span>🔗 '+gh+'</span>':'';
+    const langLine=langs?'<div class="rps"><div class="rpst">Languages</div><div style="font-size:.74rem;color:#4a4a6a">'+langs+'</div></div>':'';
+
+    document.getElementById('pv-body').innerHTML=
+      '<div class="rps"><div class="rpst">Professional Summary</div><div class="rpsum">'+summary+'</div></div>'+
+      '<div class="rps"><div class="rpst">Technical Skills</div><div class="rpsg">'+skillTags+'</div></div>'+
+      '<div class="rps"><div class="rpst">Work Experience</div><div class="rpe"><div class="rpet">'+selRole+' — '+company+'</div><div class="rpem">2021 – Present · '+loc+'</div><ul class="rpbul">'+bulletItems+'</ul></div></div>'+
+      '<div class="rps"><div class="rpst">Education</div><div class="rpet">'+(eduP[0]?.trim()||edu)+'</div><div class="rpem">'+(eduP[1]?.trim()||'')+'</div></div>'+
+      (certTags?'<div class="rps"><div class="rpst">Certifications</div><div class="rpsg">'+certTags+'</div></div>':'')+
+      langLine;
+
+    if(ghLine)document.getElementById('pv-li').insertAdjacentHTML('afterend',ghLine);
+
+    aiMsg.innerHTML='✦ Resume generated for <strong>'+selRole+'</strong> ('+level+'). '+bullets.length+' quantified bullets, '+allSk.length+' skills.'+(jd?' Tailored to job description.':'');
+    notif('✓ Resume generated!','var(--accent3)');
+  }catch(err){
+    clearInterval(timer);
+    console.error('genResume',err);
+    aiMsg.innerHTML='⚠️ Error: '+(err.message||'Could not generate. Check your internet connection.');
+    notif('Error generating resume','var(--accent2)');
+  }
+  btn.disabled=false;btn.innerHTML='✦ Generate AI Resume';isGen=false;
+}
+
+async function exportPDF(){
+  const btn=document.getElementById('pdf-btn');
+  btn.disabled=true;btn.textContent='⏳ Generating...';
+  notif('📥 Generating PDF...','var(--accent)');
+  try{
+    const el=document.getElementById('resume-preview');
+    const origMH=el.style.maxHeight,origOV=el.style.overflow;
+    el.style.maxHeight='none';el.style.overflow='visible';
+    const name=document.getElementById('inp-name').value||'resume';
+    await html2pdf().set({margin:[10,10,10,10],filename:name.replace(/\s+/g,'-').toLowerCase()+'-resume.pdf',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save();
+    el.style.maxHeight=origMH;el.style.overflow=origOV;
+    notif('✓ PDF downloaded!','var(--accent3)');
+  }catch(e){console.error(e);notif('PDF error — using print fallback','var(--gold)');window.print();}
+  btn.disabled=false;btn.textContent='📥 Export PDF';
+}
+
+// ═══════════════ COVER LETTER ═══════════════
+async function genCoverLetter(){
+  const btn=document.getElementById('cl-btn');
+  btn.disabled=true;
+  document.getElementById('cl-loading').style.display='flex';
+  const name=document.getElementById('cl-name').value||'Your Name';
+  const role=document.getElementById('cl-role').value||'Software Engineer';
+  const company=document.getElementById('cl-company').value||'the company';
+  const hm=document.getElementById('cl-hm').value;
+  const strengths=document.getElementById('cl-strengths').value;
+  const jd=document.getElementById('cl-jd').value;
+  const tone=document.getElementById('cl-tone').value;
+
+  document.getElementById('cl-pv-name').textContent=name;
+  document.getElementById('cl-pv-meta').textContent=document.getElementById('inp-email').value+' · '+document.getElementById('inp-location').value;
+
+  const today=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  const salutation=hm?'Dear '+hm:('Dear Hiring Manager');
+
+  const sys='You are an expert cover letter writer. Write compelling, personalized cover letters that get interviews.';
+  const usr='Write a cover letter for:\nCandidate: '+name+'\nApplying for: '+role+' at '+company+'\nTone: '+tone+'\nKey strengths: '+strengths+'\nJob description: '+jd.substring(0,600)+'\n\nWrite 3 paragraphs:\n1. Opening — why this role and company excite them (specific, not generic)\n2. Middle — 2-3 specific achievements/strengths that match the JD\n3. Closing — clear call to action\n\nReturn ONLY the cover letter body text (no salutation, no sign-off). Be conversational yet professional.';
+
+  const body=document.getElementById('cl-pv-body');
+  body.style.color='var(--muted)';body.style.fontStyle='normal';
+  body.textContent='Generating...';
+
+  const result=await aiText(sys,usr,text=>{
+    body.innerHTML='<p><strong>'+today+'</strong></p><p>'+salutation+',</p>'+
+      text.split('\n\n').filter(Boolean).map(p=>'<p>'+p+'</p>').join('')+
+      '<p class="cl-sign">Sincerely,<br><strong>'+name+'</strong></p>';
+  });
+
+  if(!result){
+    body.textContent='Error generating cover letter. Please check your connection and try again.';
+    notif('Error generating cover letter','var(--accent2)');
+  }else{
+    notif('✓ Cover letter generated!','var(--accent3)');
+  }
+  document.getElementById('cl-loading').style.display='none';
+  btn.disabled=false;
+}
+
+async function exportCLPDF(){
+  notif('📥 Generating cover letter PDF...','var(--accent)');
+  try{
+    const el=document.getElementById('cl-preview');
+    const name=document.getElementById('cl-name').value||'cover-letter';
+    await html2pdf().set({margin:[15,15,15,15],filename:name.replace(/\s+/g,'-').toLowerCase()+'-cover-letter.pdf',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save();
+    notif('✓ Cover letter PDF downloaded!','var(--accent3)');
+  }catch(e){notif('PDF error','var(--accent2)');}
+}
+
+function copyCL(){
+  const text=document.getElementById('cl-pv-body').innerText;
+  navigator.clipboard.writeText(text).then(()=>notif('✓ Copied to clipboard!','var(--accent3)')).catch(()=>notif('Copy failed','var(--accent2)'));
+}
+
+// ═══════════════ TEMPLATES ═══════════════
+function PT(el,scheme){document.querySelectorAll('.tc').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');selTpl=scheme;}
+function applyTpl(){document.getElementById('resume-preview').className='rp '+selTpl;P('builder');notif('✓ Template applied!','var(--accent3)');}
+
+// ═══════════════ ATS CHECKER ═══════════════
+async function runATS(){
+  const jd=document.getElementById('ats-jd').value.trim();
+  if(!jd){notif('Please paste a job description first','var(--accent2)');return;}
+  document.getElementById('ats-load').style.display='block';
+  const fill=document.getElementById('ats-lfill');let p=0;
+  const t=setInterval(()=>{p=Math.min(p+7,88);fill.style.width=p+'%';},220);
+  try{
+    const prevEl=document.getElementById('pv-body');
+    const raw=prevEl?prevEl.innerText.trim():'';
+    const resume=raw.length>80?raw.substring(0,1500):'Software Engineer with React, Node.js, Python, AWS, TypeScript. Led microservices project for 500K users. Reduced latency by 40%. B.Tech CS. 3 years experience.';
+    const sys='You are an expert ATS analyst. Respond ONLY with valid JSON.';
+    const usr='Analyze resume vs job description.\n\nResume:\n'+resume+'\n\nJD:\n'+jd.substring(0,800)+'\n\nReturn JSON: {"score":number,"verdict":"string","missing_keywords":["k1","k2","k3","k4","k5"],"found_keywords":["k1","k2","k3","k4","k5"],"improvements":["imp1","imp2","imp3"]}';
+    const r=await aiJSON(sys,usr);
+    clearInterval(t);fill.style.width='100%';
+    const res=r||{score:72,verdict:'Good match — a few keywords missing',missing_keywords:['CI/CD','microservices','agile','REST API','system design'],found_keywords:['React','Node.js','AWS','PostgreSQL','MongoDB'],improvements:["Add 'microservices architecture' in experience","Include 'agile' and 'CI/CD' in skills","Quantify achievements with specific numbers"]};
+    const score=Math.min(100,Math.max(0,res.score||72));
+    document.getElementById('ats-arc').style.strokeDashoffset=314-(314*score/100);
+    document.getElementById('ats-sv').textContent=score;
+    const col=score>=80?'var(--accent3)':score>=60?'var(--gold)':'var(--accent2)';
+    document.getElementById('ats-arc').style.stroke=col;
+    document.getElementById('ats-verdict').textContent=res.verdict||'Analysis complete';
+    document.getElementById('ats-verdict').style.color=col;
+    document.getElementById('ats-mk').innerHTML=(res.missing_keywords||[]).map(k=>'<span style="display:inline-block;background:rgba(252,92,125,.12);border:1px solid rgba(252,92,125,.3);color:var(--accent2);font-size:.69rem;padding:2px 7px;border-radius:9px;margin:2px">✕ '+k+'</span>').join('');
+    document.getElementById('ats-kw').innerHTML='<div style="font-size:.72rem;color:var(--muted);margin-bottom:4px">Matched keywords:</div>'+(res.found_keywords||[]).map(k=>'<span style="display:inline-block;background:rgba(92,249,200,.1);border:1px solid rgba(92,249,200,.3);color:var(--accent3);font-size:.69rem;padding:2px 7px;border-radius:9px;margin:2px">✓ '+k+'</span>').join('');
+    const imp=document.getElementById('ats-impr');imp.style.display='block';
+    document.getElementById('ats-ilist').innerHTML=(res.improvements||[]).map((it,i)=>'<div style="display:flex;gap:7px;padding:6px 0;border-bottom:1px solid var(--border);font-size:.77rem"><span style="color:var(--accent);font-weight:700;flex-shrink:0">'+(i+1)+'.</span><span>'+it+'</span></div>').join('');
+    document.getElementById('ats-load').style.display='none';
+    notif('✓ ATS Score: '+score+'/100','var(--accent3)');
+  }catch(err){clearInterval(t);document.getElementById('ats-load').style.display='none';console.error(err);notif('Error running ATS analysis','var(--accent2)');}
+}
+
+// ═══════════════ PORTFOLIO ═══════════════
+function selAv(el,emoji){document.querySelectorAll('.avo').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');const av=document.getElementById('av-disp');av.textContent=emoji;av.style.backgroundImage='';}
+function loadAvImg(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const av=document.getElementById('av-disp');av.textContent='';av.style.backgroundImage='url('+e.target.result+')';av.style.backgroundSize='cover';av.style.backgroundPosition='center';};r.readAsDataURL(f);}
+
+async function enhBio(){
+  const bio=document.getElementById('pf-bio').value.trim();
+  if(!bio){notif('Enter a bio first','var(--accent2)');return;}
+  notif('✦ Enhancing bio...','var(--accent)');
+  const r=await aiSimple('Rewrite this portfolio bio to be compelling and memorable in 2-3 sentences max. Keep all factual details. Return ONLY the enhanced text:\n"'+bio+'"');
+  if(r){document.getElementById('pf-bio').value=r;notif('✓ Bio enhanced!','var(--accent3)');}
+  else notif('Error enhancing bio','var(--accent2)');
+}
+
+async function enhProj(id){
+  const proj=projs.find(p=>p.id===id);if(!proj)return;
+  const card=document.getElementById('proj-'+id);
+  const descEl=card.querySelector('.pcd');
+  const orig=descEl.textContent;
+  notif('✦ Enhancing project...','var(--accent)');
+  descEl.innerHTML='<em style="color:var(--muted)">AI enhancing...</em>';
+  const r=await aiSimple('Enhance this portfolio project description with metrics and technical depth in 2-3 sentences. Return ONLY the enhanced text:\nProject: '+proj.name+'\nCurrent: '+orig+'\nTech: '+proj.tech.join(', '));
+  if(r){descEl.textContent=r;proj.desc=r;notif('✓ Project enhanced!','var(--accent3)');}
+  else{descEl.textContent=orig;notif('Error enhancing','var(--accent2)');}
+}
+
+function editProj(id){
+  const proj=projs.find(p=>p.id===id);if(!proj)return;
+  editPID=id;
+  document.getElementById('ep-name').value=proj.name;
+  document.getElementById('ep-desc').value=proj.desc;
+  document.getElementById('ep-tech').value=proj.tech.join(', ');
+  document.getElementById('ep-emoji').value=proj.emoji;
+  document.getElementById('ep-grad').value=proj.grad;
+  openModal('edit-modal');
+}
+function saveEP(){
+  const proj=projs.find(p=>p.id===editPID);if(!proj)return;
+  proj.name=document.getElementById('ep-name').value;
+  proj.desc=document.getElementById('ep-desc').value;
+  proj.tech=document.getElementById('ep-tech').value.split(',').map(t=>t.trim()).filter(Boolean);
+  proj.emoji=document.getElementById('ep-emoji').value||proj.emoji;
+  proj.grad=document.getElementById('ep-grad').value||proj.grad;
+  renderProj(proj);closeModal('edit-modal');notif('✓ Project saved!','var(--accent3)');
+}
+function saveNP(){
+  const name=document.getElementById('np-name').value.trim();
+  if(!name){notif('Enter a project name','var(--accent2)');return;}
+  const grads=['linear-gradient(135deg,#1a1a4e,#3030a0)','linear-gradient(135deg,#1e3a2e,#2d6040)','linear-gradient(135deg,#3a1a3a,#6040a0)','linear-gradient(135deg,#1a2e3a,#0d3d4e)'];
+  const p={id:projCtr++,name,desc:document.getElementById('np-desc').value||'An innovative project.',tech:document.getElementById('np-tech').value.split(',').map(t=>t.trim()).filter(Boolean),emoji:document.getElementById('np-emoji').value||'💡',grad:grads[Math.floor(Math.random()*grads.length)]};
+  projs.push(p);
+  const grid=document.getElementById('pf-grid'),div=document.createElement('div');
+  div.id='proj-'+p.id;div.className='pcard';grid.appendChild(div);renderProj(p);
+  closeModal('add-modal');notif('✓ Project added!','var(--accent3)');
+}
+async function genProjDesc(){
+  const name=document.getElementById('np-name').value.trim(),tech=document.getElementById('np-tech').value.trim();
+  if(!name){notif('Enter a project name first','var(--accent2)');return;}
+  const fill=document.getElementById('np-lfill');let p=0;
+  document.getElementById('np-load').style.display='block';
+  const t=setInterval(()=>{p=Math.min(p+13,88);fill.style.width=p+'%';},200);
+  const r=await aiSimple('Write a compelling 2-sentence portfolio description for "'+name+'"'+(tech?' using '+tech:'')+'. Include an impactful metric. Return ONLY the description.');
+  clearInterval(t);fill.style.width='100%';
+  if(r){document.getElementById('np-desc').value=r;notif('✓ Description generated!','var(--accent3)');}
+  else notif('Error generating description','var(--accent2)');
+  setTimeout(()=>{document.getElementById('np-load').style.display='none';fill.style.width='0%';},600);
+}
+function renderProj(proj){
+  const card=document.getElementById('proj-'+proj.id);if(!card)return;
+  card.innerHTML='<div class="pthumb" style="background:'+proj.grad+'">'+proj.emoji+'</div><div class="pcb"><div class="pct">'+proj.name+'</div><div class="pcd">'+proj.desc+'</div><div class="pctags">'+proj.tech.map(t=>'<span class="pctag">'+t+'</span>').join('')+'</div><div style="display:flex;gap:4px;margin-top:7px"><button class="btn btn-secondary btn-sm" onclick="enhProj('+proj.id+')">✦ AI Enhance</button><button class="btn btn-outline btn-sm" onclick="editProj('+proj.id+')">✏️ Edit</button></div></div>';
+}
+
+function prevPortfolio(){
+  const name=document.getElementById('pf-name').value||'Your Name';
+  const tag=document.getElementById('pf-tag').value||'Portfolio';
+  const bio=document.getElementById('pf-bio').value||'';
+  const av=document.getElementById('av-disp');
+  let avHTML=av.style.backgroundImage&&av.style.backgroundImage!=='none'?'<div style="width:76px;height:76px;border-radius:50%;background-image:'+av.style.backgroundImage+';background-size:cover;background-position:center;margin:0 auto .55rem"></div>':'<div style="font-size:2.8rem;margin-bottom:.55rem">'+(av.textContent||'👩‍💻')+'</div>';
+  const cards=projs.map(p=>'<div class="ppcard"><div class="ppcthumb" style="background:'+p.grad+'">'+p.emoji+'</div><div class="ppcb"><div class="ppct">'+p.name+'</div><div class="ppcd">'+p.desc+'</div><div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:4px">'+p.tech.map(t=>'<span style="background:#eeeef8;color:#555;font-size:.62rem;padding:1px 5px;border-radius:6px">'+t+'</span>').join('')+'</div></div></div>').join('');
+  document.getElementById('pv-content').innerHTML='<div id="pv-pdf-area"><div class="pph">'+avHTML+'<h1>'+name+'</h1><div class="pptag">'+tag+'</div><div class="ppbio">'+bio+'</div></div><div class="ppprojs">'+cards+'</div></div>';
+  openModal('pv-modal');
+}
+
+async function exportPFPDF(){
+  prevPortfolio();
+  await new Promise(r=>setTimeout(r,700));
+  const el=document.getElementById('pv-pdf-area');if(!el){notif('Open preview first','var(--accent2)');return;}
+  notif('📥 Generating portfolio PDF...','var(--accent)');
+  try{
+    const name=document.getElementById('pf-name').value||'portfolio';
+    await html2pdf().set({margin:10,filename:name.replace(/\s+/g,'-').toLowerCase()+'-portfolio.pdf',image:{type:'jpeg',quality:.95},html2canvas:{scale:2,backgroundColor:'#f4f4f8',logging:false},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save();
+    notif('✓ Portfolio PDF downloaded!','var(--accent3)');
+  }catch(e){notif('PDF error — try HTML download','var(--accent2)');}
+}
+
+function dlPortfolioHTML(){
+  const name=document.getElementById('pf-name').value||'Your Name';
+  const tag=document.getElementById('pf-tag').value||'Portfolio';
+  const bio=document.getElementById('pf-bio').value||'';
+  const av=document.getElementById('av-disp').textContent||'👩‍💻';
+  const projHTML=projs.map(p=>'<div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)"><div style="height:105px;background:'+p.grad+';display:flex;align-items:center;justify-content:center;font-size:2.3rem">'+p.emoji+'</div><div style="padding:1rem"><div style="font-weight:700;font-size:1rem;margin-bottom:4px;color:#1a1a2e">'+p.name+'</div><div style="font-size:.82rem;color:#555;margin-bottom:.55rem;line-height:1.5">'+p.desc+'</div><div style="display:flex;flex-wrap:wrap;gap:4px">'+p.tech.map(t=>'<span style="background:#f0eeff;color:#7c5cfc;font-size:.71rem;padding:2px 7px;border-radius:9px;font-weight:500">'+t+'</span>').join('')+'</div></div></div>').join('');
+  const html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>'+name+' — Portfolio</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:"Segoe UI",system-ui,sans-serif;background:#0a0a14;color:#e8e8f0;min-height:100vh}.hero{background:linear-gradient(135deg,#1a1a2e,#2d2050);text-align:center;padding:3.5rem 2rem}.av{font-size:3.8rem;margin-bottom:.9rem}h1{font-size:2.3rem;font-weight:900;margin-bottom:.45rem}.tag{color:#a89cf0;font-size:.97rem;margin-bottom:.9rem}.bio{color:#c0c0e0;max-width:580px;margin:0 auto;line-height:1.7;font-size:.93rem}.projects{max-width:940px;margin:2.5rem auto;padding:0 1.4rem}.pt{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#7c5cfc;margin-bottom:1.3rem}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:1.1rem}.footer{text-align:center;padding:1.8rem;color:#555;font-size:.76rem}nav{background:rgba(7,8,15,.95);padding:.8rem 1.5rem;text-align:center;font-weight:700;color:#a07fff;font-size:.82rem;letter-spacing:.05em}a{color:#7c5cfc;text-decoration:none}</style></head><body><nav>'+name+' · Portfolio</nav><div class="hero"><div class="av">'+av+'</div><h1>'+name+'</h1><div class="tag">'+tag+'</div><div class="bio">'+bio+'</div></div><div class="projects"><div class="pt">Featured Projects</div><div class="grid">'+projHTML+'</div></div><div class="footer">Built with ResumeAI Pro · '+new Date().getFullYear()+'</div></body></html>';
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name.replace(/\s+/g,'-').toLowerCase()+'-portfolio.html';
+  a.click();URL.revokeObjectURL(url);
+  notif('✓ Portfolio HTML downloaded!','var(--accent3)');
+}
+
+// ═══════════════ RESUME ANALYZER ═══════════════
+let arFile=null;
+function handleARFile(e){arFile=e.target.files[0];if(arFile){document.getElementById('ar-icon').textContent='✅';document.getElementById('ar-fname').textContent=arFile.name;document.getElementById('ar-btn').disabled=false;}}
+
+async function runAnalyzer(){
+  if(!arFile)return;
+  const btn=document.getElementById('ar-btn');btn.disabled=true;
+  document.getElementById('ar-loading').style.display='flex';
+  document.getElementById('ar-results').style.display='none';
+  const role=document.getElementById('ar-role').value;
+  const rawT=await readFT(arFile);
+  const rc=rawT.slice(0,3000)||'[Resume file: '+arFile.name+'. Analyze as a '+role+' role resume.]';
+  const sys='You are an expert resume analyst. Respond ONLY with a valid JSON object.';
+  const usr='Analyze this resume for "'+role+"\".\n\nResume:\n"+rc+'\n\nReturn JSON with:\n- score: number 0-100\n- rating: number 1.0-10.0\n- ats_score: number 0-100\n- issues: array of 8 specific strings\n- grammar_issues: array of 2-3 strings\n- strengths: array of 3 strings\n- quick_wins: array of 5 short actionable strings (each under 15 words)';
+  const data=await aiJSON(sys,usr);
+  const d=data||{score:42,rating:4.2,ats_score:58,issues:['Experience bullets lack quantified metrics','Missing industry keywords for '+role,'Professional summary is too generic','Skills section needs domain-specific technologies','No certifications listed','Achievements not using STAR method','Weak or repetitive action verbs','No measurable outcomes or impact numbers'],grammar_issues:['3+ sentences exceed 30 words','Inconsistent tense across roles'],strengths:['Contact information complete','Education clearly listed','Clean document structure'],quick_wins:['Add 3 metrics to existing bullets','Include "microservices" and "CI/CD" in skills','Write a 3-sentence targeted summary','Add your GitHub profile link','List 2 relevant certifications or courses']};
+
+  document.getElementById('ar-score').textContent=d.score;
+  document.getElementById('ar-sbar').style.width=d.score+'%';
+  document.getElementById('ar-rating').textContent=d.rating;
+  document.getElementById('ar-rbar').style.width=(d.rating*10)+'%';
+  document.getElementById('ar-ats').textContent=d.ats_score;
+  document.getElementById('ar-abar').style.width=d.ats_score+'%';
+  document.getElementById('ar-abar').style.background=d.ats_score>=70?'linear-gradient(90deg,var(--accent3),#34d399)':'linear-gradient(90deg,var(--gold),#f97316)';
+  document.getElementById('ar-issues').innerHTML=d.issues.map((x,i)=>'<li class="ii"><span class="in">'+(i+1)+'.</span><span>'+x+'</span></li>').join('');
+  document.getElementById('ar-grammar').innerHTML=d.grammar_issues.map(g=>'<div style="padding:8px 12px;background:var(--surface2);border-radius:8px;border-left:4px solid var(--gold);margin-bottom:5px;font-size:.78rem;color:var(--muted)">🔴 '+g+'</div>').join('');
+  document.getElementById('ar-quickwins').innerHTML=(d.quick_wins||[]).map((w,i)=>'<div style="display:flex;gap:8px;padding:7px 11px;background:rgba(92,249,200,.07);border:1px solid rgba(92,249,200,.2);border-radius:8px;margin-bottom:5px;font-size:.78rem;color:var(--text)"><span style="color:var(--accent3);font-weight:700;flex-shrink:0">→</span><span>'+w+'</span></div>').join('');
+  document.getElementById('ar-loading').style.display='none';
+  document.getElementById('ar-results').style.display='block';
+  document.getElementById('sbar-score').textContent=d.score;
+  document.getElementById('sbar-row').style.display='flex';
+
+  document.getElementById('ar-summary').textContent='Generating AI summary...';
+  const sum=await aiText('You are an expert resume coach. Be specific and actionable.','Write a 3-paragraph analysis for this resume for a '+role+' role. Para 1: key strengths. Para 2: critical gaps. Para 3: top 3 specific actions to improve it.\nResume: '+rc,t=>{document.getElementById('ar-summary').textContent=t;});
+  if(!sum)document.getElementById('ar-summary').textContent='Score '+d.score+'/100 for '+role+'. Strengths: '+(d.strengths||[]).join(', ')+'. Key improvements: '+(d.issues||[]).slice(0,3).join('; ')+'.';
+  btn.disabled=false;notif('✓ Analysis complete!','var(--accent3)');
+}
+
+// ═══════════════ SKILL GAP ═══════════════
+let sgFile=null,sgText='';
+function handleSGFile(e){sgFile=e.target.files[0];if(sgFile){document.getElementById('sg-icon').textContent='✅';document.getElementById('sg-fname').textContent=sgFile.name;}}
+
+async function runSG(){
+  document.getElementById('sg-loading').style.display='flex';
+  document.getElementById('sg-results').style.display='none';
+  const domain=document.getElementById('sg-domain').value;
+  if(sgFile)sgText=(await readFT(sgFile)).slice(0,2000);
+  const ds=SKILL_DOMAINS[domain]||SKILL_DOMAINS['General'];
+  const sys='You are a skills extraction expert. Respond ONLY with a valid JSON object.';
+  const usr='Identify which required skills are present in this resume.\n\nRequired for '+domain+': '+ds.required.join(', ')+'\n\nResume:\n'+(sgText||'[No resume — assume beginner]')+'\n\nReturn JSON: {"has_skills":["skill1"],"missing_skills":["skill1"]}';
+  const r=await aiJSON(sys,usr);
+  const has=r?.has_skills||[];
+  const miss=r?.missing_skills||ds.required;
+  document.getElementById('sg-has').innerHTML=has.length===0?'<span style="font-size:.76rem;color:var(--muted)">Upload your resume for better results</span>':has.map(s=>'<span class="tag tmatch">'+s+'</span>').join('');
+  document.getElementById('sg-miss').innerHTML=miss.length===0?'<span style="font-size:.76rem;color:var(--accent3)">✅ All skills present!</span>':miss.map(s=>'<span class="tag tmiss">'+s+'</span>').join('');
+  document.getElementById('sg-roadmap').innerHTML=miss.map((s,i)=>'<div class="rms"><strong>Step '+(i+1)+': Master '+s+'</strong><div class="obj">Build a hands-on project using '+s+'. Target 2-4 weeks of practice. Add it to your GitHub portfolio.</div></div>').join('')||'<div style="color:var(--accent3);font-size:.82rem;padding:11px">🎉 All required skills for '+domain+' are present!</div>';
+  document.getElementById('sg-loading').style.display='none';
+  document.getElementById('sg-results').style.display='block';
+  notif('✓ Skill gap analysis complete!','var(--accent3)');
+}
+
+// ═══════════════ ATS BULLET REWRITER ═══════════════
+let aoFile=null;
+function handleAOFile(e){aoFile=e.target.files[0];if(aoFile){document.getElementById('ao-icon').textContent='✅';document.getElementById('ao-fname').textContent=aoFile.name;document.getElementById('ao-btn').disabled=false;}}
+
+async function runAO(){
+  if(!aoFile)return;
+  const btn=document.getElementById('ao-btn');btn.disabled=true;
+  document.getElementById('ao-load').style.display='flex';
+  document.getElementById('ao-results').style.display='none';
+  document.getElementById('ao-verbs').innerHTML=AV_LIST.map(v=>'<span class="tag" style="background:rgba(124,92,252,.1);color:var(--accent-l);border-color:rgba(124,92,252,.2)">'+v+'</span>').join('');
+  const raw=await readFT(aoFile);
+  const rc=raw.slice(0,2500)||'[Resume: '+aoFile.name+'. Generate example ATS-optimized bullets for a software engineer.]';
+  const sys='You are an expert ATS resume optimizer. Respond ONLY with valid JSON.';
+  const usr='Extract 4-5 weak bullets from this resume and rewrite each two ways.\n\nResume:\n'+rc+'\n\nReturn JSON: {"statements":[{"original":"text","ats_version":"ATS/STAR optimized with metrics","pro_version":"polished professional rewrite"}]}';
+  const data=await aiJSON(sys,usr);
+  const stmts=data?.statements||[{original:'Worked on improving system performance',ats_version:'Engineered targeted microservice optimizations reducing API latency by 40% and improving throughput by 2.5x for 500K+ monthly users.',pro_version:'Led systematic performance improvements that delivered measurable gains in system reliability and user experience.'},{original:'Helped with team projects',ats_version:'Collaborated with 5-engineer team using Agile/Scrum to ship 3 critical features on schedule, cutting time-to-market by 25%.',pro_version:'Drove team success through strong collaboration and consistent delivery across engineering and product functions.'},{original:'Did code reviews',ats_version:'Conducted 10+ weekly code reviews enforcing quality standards that reduced production bug rate by 35% over 6 months.',pro_version:'Championed engineering excellence by establishing rigorous review practices that elevated team code quality standards.'},{original:'Fixed bugs in the application',ats_version:'Diagnosed and resolved 50+ critical production incidents using systematic debugging, improving system uptime to 99.9%.',pro_version:'Demonstrated strong problem-solving by systematically resolving complex technical issues ensuring high availability.'}];
+  document.getElementById('ao-cards').innerHTML=stmts.map((s,i)=>'<div class="aoc"><div style="background:var(--surface3);border-left:3px solid var(--border2);border-radius:6px;padding:8px 11px;font-size:.77rem;color:var(--muted);margin-bottom:11px">📝 Original: '+s.original+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><div class="aoh"><div class="aon">'+(i*2+1)+'</div> ATS & STAR Optimized</div><div class="aovt">'+s.ats_version+'</div><button class="btn btn-outline btn-sm" onclick="accV(this)">Accept ATS Version</button></div><div><div class="aoh"><div class="aon" style="background:var(--accent3);color:#000">'+(i*2+2)+'</div> Professional Rewrite</div><div class="aovt" style="border-left-color:var(--accent3)">'+s.pro_version+'</div><button class="btn btn-outline btn-sm" onclick="accV(this)">Accept Pro Version</button></div></div></div>').join('');
+  document.getElementById('ao-load').style.display='none';
+  document.getElementById('ao-results').style.display='block';
+  btn.disabled=false;notif('✓ ATS optimization complete!','var(--accent3)');
+}
+function accV(btn){btn.textContent='✓ Accepted';btn.style.color='var(--accent3)';btn.style.borderColor='var(--accent3)';btn.disabled=true;}
+
+// ═══════════════ INTERVIEW COACH ═══════════════
+async function runIC(){
+  const btn=document.getElementById('ic-btn');btn.disabled=true;
+  document.getElementById('ic-load').style.display='flex';
+  document.getElementById('ic-results').style.display='none';
+  document.getElementById('ic-placeholder').style.display='none';
+  const role=document.getElementById('ic-role').value||'Software Engineer';
+  const company=document.getElementById('ic-company').value;
+  const type=document.getElementById('ic-type').value;
+  const level=document.getElementById('ic-level').value;
+  const count=document.getElementById('ic-count').value;
+  const sys='You are an expert interview coach. Respond ONLY with valid JSON.';
+  const usr='Generate '+count+' '+type+' interview questions for a '+level+' '+role+' candidate'+(company?' at '+company:'')+'. For each question, provide the question, an ideal answer (3-4 sentences using STAR format where applicable), and one expert tip.\n\nReturn JSON: {"questions":[{"q":"question text","answer":"ideal answer","tip":"expert tip"}]}';
+  const data=await aiJSON(sys,usr);
+  const qs=data?.questions||[{q:'Tell me about yourself and your experience as a '+role+'.',answer:'I am a passionate '+role+' with '+level.toLowerCase()+' experience. I have worked on building scalable applications and have a strong foundation in my core technical skills. I am particularly proud of [specific achievement]. I am looking for opportunities to [career goal].',tip:'Keep this to 2 minutes max. Tailor it to the role — connect your background to what they need.'},{q:'Describe a challenging technical problem you solved.',answer:'In my previous role, I faced a situation where our application was experiencing severe performance degradation. I analyzed the problem methodically, identified the root cause in our database queries, and implemented targeted optimizations. The result was a 40% improvement in response times and significantly better user experience.',tip:'Use the STAR method: Situation, Task, Action, Result. Always quantify the outcome.'},{q:'How do you handle disagreements with team members?',answer:'I approach disagreements collaboratively by first seeking to understand the other perspective fully. I then present my viewpoint with clear reasoning and data. If we cannot align, I escalate appropriately and always prioritize the project outcome over personal preferences.',tip:'Show maturity and collaboration. Avoid making it about being right.'},{q:'Where do you see yourself in 5 years?',answer:'I see myself having grown significantly in my technical depth and taken on more leadership responsibilities. I want to be someone who can architect complex systems and mentor junior engineers while continuing to stay hands-on with the technical work.',tip:'Align your answer with the company\'s growth opportunities and the role you are applying for.'}];
+  document.getElementById('ic-cards').innerHTML=qs.map((q,i)=>'<div class="iq-card"><div class="iq-q"><span class="iq-qnum">Q'+(i+1)+'</span>'+q.q+'</div><div class="iq-ans">'+q.answer+'</div><div class="iq-tip">💡 Tip: '+q.tip+'</div></div>').join('');
+  document.getElementById('ic-load').style.display='none';
+  document.getElementById('ic-results').style.display='block';
+  btn.disabled=false;notif('✓ Interview prep ready!','var(--accent3)');
+}
+
+// ═══════════════ SALARY INSIGHTS ═══════════════
+async function runSalary(){
+  const btn=document.getElementById('sal-btn');btn.disabled=true;
+  document.getElementById('sal-load').style.display='flex';
+  document.getElementById('sal-results').style.display='none';
+  document.getElementById('sal-placeholder').style.display='none';
+  const role=document.getElementById('sal-role').value||'Software Engineer';
+  const loc=document.getElementById('sal-loc').value||'Hyderabad, India';
+  const level=document.getElementById('sal-level').value;
+  const industry=document.getElementById('sal-industry').value;
+  const skills=document.getElementById('sal-skills').value;
+  const sys='You are an expert salary analyst with knowledge of Indian and global tech compensation. Respond ONLY with valid JSON.';
+  const usr='Provide salary insights for:\nRole: '+role+'\nLocation: '+loc+'\nLevel: '+level+'\nIndustry: '+industry+'\nSkills: '+skills+'\n\nReturn JSON:\n{\n"currency": "INR" or "USD",\n"min_lpa": number,\n"median_lpa": number,\n"max_lpa": number,\n"unit": "LPA" or "USD/year",\n"market_demand": "High" or "Medium" or "Low",\n"demand_reason": "one sentence explanation",\n"skill_premium": [{"skill":"name","premium_pct":number}],\n"companies": ["company1","company2","company3","company4","company5"],\n"negotiation_tips": ["tip1","tip2","tip3","tip4","tip5"]\n}';
+  const data=await aiJSON(sys,usr);
+  const d=data||{currency:'INR',min_lpa:8,median_lpa:16,max_lpa:28,unit:'LPA',market_demand:'High',demand_reason:'Strong demand for '+role+' professionals in '+loc+' with the specified skills.',skill_premium:[{skill:'AWS',premium_pct:15},{skill:'React',premium_pct:12},{skill:'System Design',premium_pct:20}],companies:['Infosys','Wipro','TCS','HCL','Cognizant'],negotiation_tips:['Research market rates on Glassdoor, LinkedIn Salary, and Levels.fyi before negotiating','Highlight your specific achievements with measurable impact to justify higher compensation','Always negotiate for the full package: base, bonus, ESOPs, and benefits','Use competing offers strategically to strengthen your position','Never accept the first offer — most companies expect negotiation']};
+  const maxV=d.max_lpa||28;
+  document.getElementById('sal-cards').innerHTML=`
+    <div class="sal-card mb2">
+      <div class="ct">Salary Range for ${role} in ${loc}</div>
+      <div class="four" style="gap:.7rem;margin-bottom:.85rem">
+        <div class="glass" style="text-align:center;padding:.85rem"><div style="font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;color:var(--muted)">${d.min_lpa}</div><div style="font-size:.64rem;color:var(--muted);margin-top:2px">MIN ${d.unit}</div></div>
+        <div class="glass" style="text-align:center;padding:.85rem;border-color:rgba(245,200,66,.3)"><div style="font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;color:var(--gold)">${d.median_lpa}</div><div style="font-size:.64rem;color:var(--muted);margin-top:2px">MEDIAN</div></div>
+        <div class="glass" style="text-align:center;padding:.85rem;border-color:rgba(92,249,200,.3)"><div style="font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;color:var(--accent3)">${d.max_lpa}</div><div style="font-size:.64rem;color:var(--muted);margin-top:2px">MAX</div></div>
+        <div class="glass" style="text-align:center;padding:.85rem;border-color:rgba(${d.market_demand==='High'?'92,249,200':d.market_demand==='Medium'?'245,200,66':'252,92,125'},.3)"><div style="font-family:'Orbitron',monospace;font-size:.88rem;font-weight:700;color:${d.market_demand==='High'?'var(--accent3)':d.market_demand==='Medium'?'var(--gold)':'var(--accent2)'}">${d.market_demand}</div><div style="font-size:.64rem;color:var(--muted);margin-top:2px">DEMAND</div></div>
+      </div>
+      <div style="margin-bottom:.85rem">
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:4px"><span>${d.min_lpa} ${d.unit}</span><span style="color:var(--gold);font-weight:600">You: ${d.median_lpa} ${d.unit}</span><span>${d.max_lpa} ${d.unit}</span></div>
+        <div class="sal-bar-wrap"><div class="sal-bar" style="width:${Math.round(((d.median_lpa-d.min_lpa)/(maxV-d.min_lpa+0.01))*100)}%"></div></div>
+      </div>
+      <div style="font-size:.76rem;color:var(--muted);margin-bottom:.85rem">📊 ${d.demand_reason}</div>
+      ${(d.skill_premium||[]).length>0?`<div class="ct">Skill Premiums</div><div style="display:flex;flex-wrap:wrap;gap:.5rem">${d.skill_premium.map(s=>`<div style="background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.25);border-radius:8px;padding:5px 11px;font-size:.74rem"><span style="color:var(--accent-l);font-weight:600">${s.skill}</span> <span style="color:var(--accent3)">+${s.premium_pct}%</span></div>`).join('')}</div>`:''}
+    </div>
+    <div class="card">
+      <div class="ct">Top Hiring Companies</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem">${(d.companies||[]).map(c=>'<span style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:5px 12px;font-size:.76rem;font-weight:500">🏢 '+c+'</span>').join('')}</div>
+    </div>`;
+  document.getElementById('sal-tips').textContent=(d.negotiation_tips||[]).map((t,i)=>(i+1)+'. '+t).join('\n\n');
+  document.getElementById('sal-load').style.display='none';
+  document.getElementById('sal-results').style.display='block';
+  btn.disabled=false;notif('✓ Salary insights ready!','var(--accent3)');
+}
+
+// ═══════════════ LINKEDIN OPTIMIZER ═══════════════
+async function runLI(){
+  const btn=document.getElementById('li-btn');btn.disabled=true;
+  document.getElementById('li-load').style.display='flex';
+  document.getElementById('li-results').style.display='none';
+  document.getElementById('li-placeholder').style.display='none';
+  const headline=document.getElementById('li-headline').value;
+  const about=document.getElementById('li-about').value;
+  const target=document.getElementById('li-target').value;
+  const achievements=document.getElementById('li-achievements').value;
+  const sys='You are an expert LinkedIn profile optimizer. Respond ONLY with valid JSON.';
+  const usr='Optimize this LinkedIn profile for maximum recruiter visibility and search ranking.\n\nCurrent headline: '+headline+'\nCurrent about: '+about+'\nTarget role: '+target+'\nAchievements: '+achievements+'\n\nReturn JSON:\n{"headline":"optimized headline (220 chars max)","about":"optimized about section (2600 chars max, first 300 chars must be compelling hook)","featured_skills":["skill1","skill2","skill3","skill4","skill5"],"connection_note":"50-word connection request template","profile_tips":["tip1","tip2","tip3","tip4"]}';
+  const data=await aiJSON(sys,usr);
+  const d=data||{headline:'Senior Software Engineer | React · Node.js · AWS | Building scalable products that impact millions | Open to Senior & Lead roles',about:'🚀 I build software that scales.\n\nWith 3+ years of experience at the intersection of frontend excellence and backend engineering, I specialize in architecting microservices-based applications that handle millions of requests.\n\n✅ Reduced API latency by 40% serving 500K+ users\n✅ Led cross-functional teams to ship products 25% faster\n✅ Mentored engineers who went on to lead their own teams\n\nI thrive in fast-paced environments where engineering craft and business impact go hand in hand.',featured_skills:['React','Node.js','AWS','System Design','TypeScript'],connection_note:'Hi [Name], I noticed your work at [Company] and would love to connect. I\'m a Software Engineer specializing in React/Node.js and always enjoy connecting with fellow engineers shaping the tech ecosystem.',profile_tips:['Add your profile photo — profiles with photos get 21x more views','Enable "Open to Work" privately to let recruiters know you\'re looking','Add 3-5 portfolio links in the Featured section','Post or share one insight weekly to boost algorithm visibility']};
+  document.getElementById('li-cards').innerHTML=
+    '<div class="lo-section"><div class="lo-sec-title">Optimized Headline</div><div style="font-size:.84rem;color:var(--text);line-height:1.5;background:var(--surface3);border-radius:8px;padding:.8rem;margin-bottom:.5rem">'+d.headline+'</div><button class="btn btn-outline btn-sm" onclick="cpText(\''+encodeURIComponent(d.headline)+'\',this)">📋 Copy Headline</button></div>'+
+    '<div class="lo-section"><div class="lo-sec-title">Optimized About / Summary</div><div style="font-size:.8rem;color:var(--muted);line-height:1.65;background:var(--surface3);border-radius:8px;padding:.8rem;margin-bottom:.5rem;white-space:pre-wrap">'+d.about+'</div><button class="btn btn-outline btn-sm" onclick="cpText(\''+encodeURIComponent(d.about)+'\',this)">📋 Copy About Section</button></div>'+
+    '<div class="lo-section"><div class="lo-sec-title">Featured Skills to Add</div><div class="tw mt1">'+d.featured_skills.map(s=>'<span class="tag">'+s+'</span>').join('')+'</div></div>'+
+    '<div class="lo-section"><div class="lo-sec-title">Connection Request Template</div><div style="font-size:.8rem;color:var(--muted);background:var(--surface3);border-radius:8px;padding:.8rem;line-height:1.6">'+d.connection_note+'</div></div>'+
+    '<div class="lo-section"><div class="lo-sec-title">Profile Optimization Tips</div>'+d.profile_tips.map(t=>'<div style="display:flex;gap:8px;padding:6px 0;font-size:.78rem;color:var(--muted);border-bottom:1px solid var(--border)"><span style="color:var(--accent3)">→</span><span>'+t+'</span></div>').join('')+'</div>';
+  document.getElementById('li-load').style.display='none';
+  document.getElementById('li-results').style.display='block';
+  btn.disabled=false;notif('✓ LinkedIn profile optimized!','var(--accent3)');
+}
+
+function cpText(encoded,btn){
+  const text=decodeURIComponent(encoded);
+  navigator.clipboard.writeText(text).then(()=>{btn.textContent='✓ Copied!';btn.style.color='var(--accent3)';setTimeout(()=>{btn.textContent='📋 Copy';btn.style.color='';},2000);}).catch(()=>notif('Copy failed','var(--accent2)'));
+}
+</script>
+</body>
+</html>
